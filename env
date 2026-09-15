@@ -1,0 +1,26 @@
+NODE_ENV=development
+PORT=4000
+
+# MongoDB Atlas 
+MONGO_URI=mongodb+srv://esdonalgo_db_user:2qHCuR53ysqXVVSk@fsplaylists.v5tmq88.mongodb.net
+MONGODB_USERNAME="UnmovedMover"
+MONGODB_PASSWORD="FzZuH5Scv1F5vXXg"
+# JWT
+JWT_SECRET=2a9e9a3ea7fea9478fd4bed7037aa8c936cc14b6d24f375bb3ea80c922bb9356
+JWT_EXPIRES_IN=7d
+
+# Cloudinary (imagenes)
+CLOUDINARY_CLOUD_NAME=n9gqtkiy
+CLOUDINARY_API_KEY=788638354614625
+CLOUDINARY_API_SECRET=r4WPZ7UaKcp-XOs2hLNQCe8oyQ4
+
+# AI (para generar lña descripcion de las playlists)
+ANTHROPIC_API_KEY=
+
+# Seed script - crea un usuario admin
+ADMIN_USERNAME=admin
+ADMIN_EMAIL=admin@gmail.com
+ADMIN_PASSWORD=Jamaica,123
+
+# Frontend que llama la API //
+CORS_ORIGIN=http://localhost:3000
