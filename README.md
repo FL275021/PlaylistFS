@@ -8,7 +8,7 @@ para cada playlist creada.
 
 Node.js · Express · MongoDB/Mongoose · JWT · Joi · BcryptJS · Cloudinary · Anthropic API
 
-## Getting started
+## Para empezar
 
 ```bash
 npm install
