@@ -1,45 +1,55 @@
-// Generates a short "vibe" description for a playlist from its genre and tracks.
-// Per the assignment, AI unavailability must never break the app - the caller
-// (playlistController.generateVibe) always wraps this in try/catch and falls
-// back to fallbackVibeSummary() below on any failure.
-const DEFAULT_MODEL = 'claude-sonnet-4-6';
+import iaModel from '../config/ia.config.js';
 
-exports.generateVibeSummary = async ({ genreName, trackTitles }) => {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    throw new Error('ANTHROPIC_API_KEY is not configured');
+const esperar = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
+/**
+ * Genera una descripción corta del ambiente/vibe de una playlist usando Gemini.
+ *
+ * Si Gemini falla temporalmente, reintenta con espera progresiva.
+ * Si se agotan los intentos, devuelve una descripción por defecto para que
+ * la aplicación nunca devuelva un error por culpa del servicio de IA.
+ */
+export const generarVibePlaylist = async (
+  { genreName, trackTitles },
+  maximumAttempts = 2
+) => {
+  const listaCanciones = trackTitles.length
+    ? trackTitles.slice(0, 15).join(', ')
+    : 'sin canciones por ahora';
+
+  const prompt = `
+Género: "${genreName}". Canciones: ${listaCanciones}.
+Escribe UNA frase corta y atractiva (máximo 25 palabras) que describa el vibe o ambiente de esta playlist.
+Devuelve únicamente la frase, sin comillas ni introducciones.
+  `.trim();
+
+  for (let intento = 1; intento <= maximumAttempts; intento++) {
+    try {
+      const result = await iaModel.generateContent(prompt);
+      const texto = result.response.text().trim();
+      return texto || vibeDefault(genreName);
+    } catch (error) {
+      console.error(`Error de IA. Intento ${intento}/${maximumAttempts}:`, error.message);
+
+      const esReintenTable =
+        error.message?.includes('429') ||
+        error.message?.includes('500') ||
+        error.message?.includes('503');
+
+      if (esReintenTable && intento < maximumAttempts) {
+        const delay = intento * 1000;
+        console.log(`Reintentando petición a Gemini en ${delay} ms...`);
+        await esperar(delay);
+        continue;
+      }
+
+      console.warn('Gemini no disponible. Se usa descripción por defecto.');
+      return vibeDefault(genreName);
+    }
   }
 
-  const trackList = trackTitles.length ? trackTitles.slice(0, 15).join(', ') : 'no tracks yet';
-
-  const prompt = `You are helping describe a music playlist. Genre: "${genreName}". Tracks: ${trackList}. Write ONE short, catchy sentence (max 25 words) describing the vibe/mood of this playlist. Respond with only the sentence, no quotes, no preamble.`;
-
-  const response = await fetch('https://api.anthropic.com/v1/messages', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey,
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: DEFAULT_MODEL,
-      max_tokens: 60,
-      messages: [{ role: 'user', content: prompt }],
-    }),
-  });
-
-  if (!response.ok) {
-    throw new Error(`AI provider responded with status ${response.status}`);
-  }
-
-  const data = await response.json();
-  const textBlock = (data.content || []).find((block) => block.type === 'text');
-
-  if (!textBlock) {
-    throw new Error('AI provider returned no text content');
-  }
-
-  return textBlock.text.trim();
+  return vibeDefault(genreName);
 };
 
-exports.fallbackVibeSummary = (genreName) => `A curated mix of ${genreName} tracks.`;
+export const vibeDefault = (genreName) =>
+  `Una selección curada de lo mejor del ${genreName}.`;

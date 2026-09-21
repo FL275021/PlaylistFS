@@ -1,16 +1,16 @@
-const express = require('express');
-const authRoutes = require('./auth.routes');
-const userRoutes = require('./user.routes');
-const genreRoutes = require('./genre.routes');
-const playlistRoutes = require('./playlist.routes');
-const trackRoutes = require('./track.routes');
+import { Router } from 'express';
+import authRoutes from './auth.routes.js';
+import userRoutes from './user.routes.js';
+import genreRoutes from './genre.routes.js';
+import playlistRoutes from './playlist.routes.js';
+import trackRoutes from './track.routes.js';
 
-const router = express.Router();
+const v1Routes = Router();
 
-router.use('/auth', authRoutes);
-router.use('/users', userRoutes);
-router.use('/genres', genreRoutes);
-router.use('/playlists', playlistRoutes);
-router.use('/tracks', trackRoutes);
+v1Routes.use('/auth', authRoutes);
+v1Routes.use('/users', userRoutes);
+v1Routes.use('/genres', genreRoutes);
+v1Routes.use('/playlists', playlistRoutes);
+v1Routes.use('/tracks', trackRoutes);
 
-module.exports = router;
+export default v1Routes;

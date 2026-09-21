@@ -5,10 +5,9 @@ class APIFeatures {
     this.pagination = {};
   }
 
-  // Generic field filtering, e.g. ?genre=<id>, supports gte/gt/lte/lt operators
   filter() {
     const queryObj = { ...this.queryString };
-    const excludedFields = ['page', 'limit', 'sort', 'fields', 'search'];
+    const excludedFields = ['page', 'limit', 'sort', 'search'];
     excludedFields.forEach((field) => delete queryObj[field]);
 
     let queryStr = JSON.stringify(queryObj);
@@ -18,12 +17,10 @@ class APIFeatures {
     return this;
   }
 
-  // Simple case-insensitive substring search across one or more fields, e.g. ?search=rock
   search(fields = []) {
     if (this.queryString.search && fields.length) {
       const regex = new RegExp(this.queryString.search, 'i');
-      const orConditions = fields.map((field) => ({ [field]: regex }));
-      this.query = this.query.find({ $or: orConditions });
+      this.query = this.query.find({ $or: fields.map((f) => ({ [f]: regex })) });
     }
     return this;
   }
@@ -48,4 +45,4 @@ class APIFeatures {
   }
 }
 
-module.exports = APIFeatures;
+export default APIFeatures;

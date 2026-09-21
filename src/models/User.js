@@ -1,11 +1,12 @@
-const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
+import mongoose from 'mongoose';
+import { Role, Roles } from '../constants/role.constants.js';
+import { Plan, Plans } from '../constants/plan.constants.js';
 
 const userSchema = new mongoose.Schema(
   {
     username: {
       type: String,
-      required: [true, 'Username is required'],
+      required: [true, 'El nombre de usuario es obligatorio'],
       unique: true,
       trim: true,
       minlength: 3,
@@ -13,42 +14,43 @@ const userSchema = new mongoose.Schema(
     },
     email: {
       type: String,
-      required: [true, 'Email is required'],
+      required: [true, 'El email es obligatorio'],
       unique: true,
       trim: true,
       lowercase: true,
-      match: [/^\S+@\S+\.\S+$/, 'Please provide a valid email'],
+      match: [/^\S+@\S+\.\S+$/, 'El email no tiene un formato válido'],
     },
     password: {
       type: String,
-      required: [true, 'Password is required'],
+      required: [true, 'La contraseña es obligatoria'],
       minlength: 8,
       select: false,
     },
-    // Only 'user' is ever assigned through public registration.
-    // 'admin' accounts are pre-seeded directly in the database (see src/seed/seed.js).
+    // Solo 'user' se asigna en el registro público.
+    // Las cuentas 'admin' se pre-cargan con npm run seed.
     role: {
       type: String,
-      enum: ['user', 'admin'],
-      default: 'user',
+      enum: Roles,
+      default: Role.user,
     },
     plan: {
       type: String,
-      enum: ['plus', 'premium'],
-      default: 'plus',
+      enum: Plans,
+      default: Plan.plus,
     },
   },
   { timestamps: true }
 );
 
-userSchema.pre('save', async function hashPassword(next) {
-  if (!this.isModified('password')) return next();
-  this.password = await bcrypt.hash(this.password, 12);
-  next();
+userSchema.set('toJSON', {
+  transform: (doc, ret) => {
+    ret.id = ret._id;
+    delete ret._id;
+    delete ret.__v;
+    delete ret.password;
+    return ret;
+  },
 });
 
-userSchema.methods.comparePassword = function comparePassword(candidate) {
-  return bcrypt.compare(candidate, this.password);
-};
-
-module.exports = mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema);
+export default User;

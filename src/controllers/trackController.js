@@ -1,13 +1,13 @@
-const catchAsync = require('../utils/catchAsync');
-const AppError = require('../utils/AppError');
-const itunesService = require('../services/itunes.service');
+import catchAsync from '../utils/catchAsync.js';
+import { constructorError } from '../utils/constructor.error.js';
+import * as itunesService from '../services/itunes.service.js';
 
-exports.searchTracks = catchAsync(async (req, res, next) => {
+export const searchTracks = catchAsync(async (req, res, next) => {
   const { q } = req.query;
-  if (!q || !q.trim()) {
-    return next(new AppError('Parametro "q" requerido.', 400));
+  if (!q?.trim()) {
+    return next(constructorError('El parámetro de búsqueda "q" es obligatorio.', 400));
   }
 
-  const results = await itunesService.searchTracks(q.trim());
-  res.status(200).json({ status: 'success', results: results.length, data: { tracks: results } });
+  const tracks = await itunesService.searchTracks(q.trim());
+  res.status(200).json({ status: 'success', results: tracks.length, data: { tracks } });
 });

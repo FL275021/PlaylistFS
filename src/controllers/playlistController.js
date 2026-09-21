@@ -1,33 +1,30 @@
-const catchAsync = require('../utils/catchAsync');
-const AppError = require('../utils/AppError');
-const Playlist = require('../models/Playlist');
-const Genre = require('../models/Genre');
-const APIFeatures = require('../utils/apiFeatures');
-const cloudinaryService = require('../services/cloudinary.service');
-const aiService = require('../services/ai.service');
+import catchAsync from '../utils/catchAsync.js';
+import { constructorError } from '../utils/constructor.error.js';
+import Playlist from '../models/Playlist.js';
+import Genre from '../models/Genre.js';
+import APIFeatures from '../utils/apiFeatures.js';
+import * as cloudinaryService from '../services/cloudinary.service.js';
+import * as aiService from '../services/ai.service.js';
 
-const findOwnedPlaylist = async (id, user) => {
+const obtenerPlaylistPropia = async (id, user) => {
   const playlist = await Playlist.findById(id);
-  if (!playlist) return { error: new AppError('Playlist no encontrada.', 404) };
+  if (!playlist) return { error: constructorError('Playlist no encontrada.', 404) };
   if (String(playlist.owner) !== String(user._id) && user.role !== 'admin') {
-    return { error: new AppError('No tienes acceso a esta playlist.', 403) };
+    return { error: constructorError('No tienes acceso a esta playlist.', 403) };
   }
   return { playlist };
 };
 
-exports.createPlaylist = catchAsync(async (req, res, next) => {
+export const createPlaylist = catchAsync(async (req, res, next) => {
   const genre = await Genre.findById(req.body.genre);
-  if (!genre) return next(new AppError('Genero no existe.', 404));
+  if (!genre) return next(constructorError('Género no encontrado.', 404));
 
   const playlist = await Playlist.create({ ...req.body, owner: req.user._id });
   res.status(201).json({ status: 'success', data: { playlist } });
 });
 
-//Playlists accesibles para el usuario logueado, paginadas y filtrables
-// e.g. -> ?genre=<id>&search=road+trip&page=2&limit=10
-exports.getPlaylists = catchAsync(async (req, res) => {
+export const getPlaylists = catchAsync(async (req, res) => {
   const baseQuery = Playlist.find({ owner: req.user._id }).populate('genre', 'name');
-
   const features = new APIFeatures(baseQuery, req.query).filter().search(['name']).sort().paginate();
 
   const [playlists, total] = await Promise.all([
@@ -43,101 +40,85 @@ exports.getPlaylists = catchAsync(async (req, res) => {
   });
 });
 
-exports.getPlaylist = catchAsync(async (req, res, next) => {
-  const { playlist, error } = await findOwnedPlaylist(req.params.id, req.user);
+export const getPlaylist = catchAsync(async (req, res, next) => {
+  const { playlist, error } = await obtenerPlaylistPropia(req.params.id, req.user);
   if (error) return next(error);
-
   await playlist.populate('genre', 'name');
   res.status(200).json({ status: 'success', data: { playlist } });
 });
 
-exports.updatePlaylist = catchAsync(async (req, res, next) => {
-  const { playlist, error } = await findOwnedPlaylist(req.params.id, req.user);
+export const updatePlaylist = catchAsync(async (req, res, next) => {
+  const { playlist, error } = await obtenerPlaylistPropia(req.params.id, req.user);
   if (error) return next(error);
 
   if (req.body.genre) {
     const genre = await Genre.findById(req.body.genre);
-    if (!genre) return next(new AppError('Genero no existe.', 404));
+    if (!genre) return next(constructorError('Género no encontrado.', 404));
   }
 
   Object.assign(playlist, req.body);
   await playlist.save();
-
   res.status(200).json({ status: 'success', data: { playlist } });
 });
 
-exports.deletePlaylist = catchAsync(async (req, res, next) => {
-  const { playlist, error } = await findOwnedPlaylist(req.params.id, req.user);
+export const deletePlaylist = catchAsync(async (req, res, next) => {
+  const { playlist, error } = await obtenerPlaylistPropia(req.params.id, req.user);
   if (error) return next(error);
-
   await playlist.deleteOne();
-  res.status(204).json({ status: 'success', data: null });
+  res.status(204).send();
 });
 
-exports.uploadCoverImage = catchAsync(async (req, res, next) => {
-  const { playlist, error } = await findOwnedPlaylist(req.params.id, req.user);
+export const uploadCoverImage = catchAsync(async (req, res, next) => {
+  const { playlist, error } = await obtenerPlaylistPropia(req.params.id, req.user);
   if (error) return next(error);
 
-  if (!req.file) return next(new AppError('No hay archivo de imagen.', 400));
+  if (!req.file) return next(constructorError('No se proporcionó ninguna imagen.', 400));
 
   let result;
   try {
     result = await cloudinaryService.uploadImageBuffer(req.file.buffer);
-  } catch (err) {
-    return next(new AppError('Error al subir imagen', 502));
+  } catch {
+    return next(constructorError('Error al subir la imagen. Intente nuevamente.', 502));
   }
 
   playlist.coverImageUrl = result.secure_url;
   await playlist.save();
-
   res.status(200).json({ status: 'success', data: { playlist } });
 });
 
-exports.addTrack = catchAsync(async (req, res, next) => {
-  const { playlist, error } = await findOwnedPlaylist(req.params.id, req.user);
+export const addTrack = catchAsync(async (req, res, next) => {
+  const { playlist, error } = await obtenerPlaylistPropia(req.params.id, req.user);
   if (error) return next(error);
-
   playlist.tracks.push(req.body);
   await playlist.save();
-
   res.status(201).json({ status: 'success', data: { playlist } });
 });
 
-exports.removeTrack = catchAsync(async (req, res, next) => {
-  const { playlist, error } = await findOwnedPlaylist(req.params.id, req.user);
+export const removeTrack = catchAsync(async (req, res, next) => {
+  const { playlist, error } = await obtenerPlaylistPropia(req.params.id, req.user);
   if (error) return next(error);
-
-  playlist.tracks = playlist.tracks.filter((track) => String(track._id) !== req.params.trackId);
+  playlist.tracks = playlist.tracks.filter((t) => String(t._id) !== req.params.trackId);
   await playlist.save();
-
   res.status(200).json({ status: 'success', data: { playlist } });
 });
 
-//Region IA - no muestra request rotas, en vez muestra una descripcion ppor defecto
-exports.generateDesc = catchAsync(async (req, res, next) => {
-  const { playlist, error } = await findOwnedPlaylist(req.params.id, req.user);
+// Punto de integración con IA generativa.
+// Si Gemini falla, el servicio devuelve una descripción por defecto — nunca un error 500.
+export const generateVibe = catchAsync(async (req, res, next) => {
+  const { playlist, error } = await obtenerPlaylistPropia(req.params.id, req.user);
   if (error) return next(error);
 
   await playlist.populate('genre', 'name');
-  const genreName = playlist.genre?.name || 'eclectic';
-  const trackTitles = playlist.tracks.map((track) => track.title);
+  const genreName = playlist.genre?.name || 'variado';
+  const trackTitles = playlist.tracks.map((t) => t.title);
 
-  let summary;
-  let generatedByAI = true;
+  const { vibe, generadoPorIA } = await aiService
+    .generarVibePlaylist({ genreName, trackTitles })
+    .then((vibe) => ({ vibe, generadoPorIA: true }))
+    .catch(() => ({ vibe: aiService.vibeDefault(genreName), generadoPorIA: false }));
 
-  try {
-    summary = await aiService.generateDescSummary({ genreName, trackTitles });
-  } catch (err) {
-    console.error('Error al generar descripcion AI, usar por defecto:', err.message);
-    summary = aiService.fallbackDescSummary(genreName);
-    generatedByAI = false;
-  }
-
-  playlist.aiDescSummary = summary;
+  playlist.aiVibeSummary = vibe;
   await playlist.save();
 
-  res.status(200).json({
-    status: 'success',
-    data: { aiDescSummary: summary, generatedByAI },
-  });
+  res.status(200).json({ status: 'success', data: { aiVibeSummary: vibe, generadoPorIA } });
 });

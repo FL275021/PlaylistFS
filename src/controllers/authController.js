@@ -1,57 +1,54 @@
-const catchAsync = require('../utils/catchAsync');
-const AppError = require('../utils/AppError');
-const User = require('../models/User');
-const generateToken = require('../utils/generateToken');
+import catchAsync from '../utils/catchAsync.js';
+import { constructorError } from '../utils/constructor.error.js';
+import User from '../models/User.js';
+import { hashear, compararPassword } from '../utils/hash.util.js';
+import { generarAccessTokenByUser } from '../utils/token.util.js';
+import sanitizeUser from '../utils/sanitizeUser.js';
+import { Role } from '../constants/role.constants.js';
+import { Plan } from '../constants/plan.constants.js';
 
-const sanitizeUser = (user) => ({
-  id: user._id,
-  username: user.username,
-  email: user.email,
-  role: user.role,
-  plan: user.plan,
-  createdAt: user.createdAt,
-});
-
-exports.register = catchAsync(async (req, res, next) => {
+export const register = catchAsync(async (req, res, next) => {
   const { username, email, password } = req.body;
 
-  const existing = await User.findOne({ $or: [{ username }, { email }] });
-  if (existing) {
-    const field = existing.username === username ? 'username' : 'email';
-    return next(new AppError(`Ese ${field} ya  ha sido registrado.`, 409));
+  const existente = await User.findOne({ $or: [{ username }, { email }] });
+  if (existente) {
+    const campo = existente.username === username ? 'nombre de usuario' : 'email';
+    return next(constructorError(`Ese ${campo} ya está registrado.`, 409));
   }
 
-  // el rol o plan nunca son tomados del client - si se autoregistra siempre es "user/plus" 
-  const user = await User.create({ username, email, password, role: 'user', plan: 'plus' });
-  const token = generateToken(user);
-
-  res.status(201).json({
-    status: 'success',
-    token,
-    data: { user: sanitizeUser(user) },
+  // El rol y el plan nunca vienen del cliente — siempre 'user' / 'plus' en el registro.
+  const passwordHash = await hashear(password);
+  const user = await User.create({
+    username,
+    email,
+    password: passwordHash,
+    role: Role.user,
+    plan: Plan.plus,
   });
+
+  const token = generarAccessTokenByUser(user);
+
+  res.status(201).json({ status: 'success', token, data: { user: sanitizeUser(user) } });
 });
 
-exports.login = catchAsync(async (req, res, next) => {
+export const login = catchAsync(async (req, res, next) => {
   const { identifier, password } = req.body;
+  const errorCredencial = constructorError('Credenciales inválidas.', 401);
 
   const user = await User.findOne({
     $or: [{ username: identifier }, { email: identifier }],
   }).select('+password');
 
-  if (!user || !(await user.comparePassword(password))) {
-    return next(new AppError('Password/Email invalidos.', 401));
-  }
+  if (!user) return next(errorCredencial);
 
-  const token = generateToken(user);
+  const valido = await compararPassword(password, user.password);
+  if (!valido) return next(errorCredencial);
 
-  res.status(200).json({
-    status: 'success',
-    token,
-    data: { user: sanitizeUser(user) },
-  });
+  const token = generarAccessTokenByUser(user);
+
+  res.status(200).json({ status: 'success', token, data: { user: sanitizeUser(user) } });
 });
 
-exports.getMe = catchAsync(async (req, res) => {
+export const getMe = catchAsync(async (req, res) => {
   res.status(200).json({ status: 'success', data: { user: sanitizeUser(req.user) } });
 });

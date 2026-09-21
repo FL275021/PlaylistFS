@@ -1,17 +1,18 @@
-const express = require('express');
-const genreController = require('../../controllers/genreController');
-const validate = require('../../middlewares/validate');
-const { createGenreSchema, updateGenreSchema } = require('../../validations/genreValidation');
-const { protect, restrictTo } = require('../../middlewares/auth');
+import { Router } from 'express';
+import { createGenre, getGenres, getGenre, updateGenre, deleteGenre } from '../../controllers/genreController.js';
+import { validate } from '../../middlewares/validate.middleware.js';
+import { createGenreSchema, updateGenreSchema } from '../../schemas/genre.schema.js';
+import { protect } from '../../middlewares/auth.middleware.js';
+import { soloAdmin } from '../../middlewares/rol.middleware.js';
 
-const router = express.Router();
+const genreRoutes = Router();
 
-router.use(protect);
+genreRoutes.use(protect);
 
-router.get('/', genreController.getGenres);
-router.get('/:id', genreController.getGenre);
-router.post('/', restrictTo('admin'), validate(createGenreSchema), genreController.createGenre);
-router.patch('/:id', restrictTo('admin'), validate(updateGenreSchema), genreController.updateGenre);
-router.delete('/:id', restrictTo('admin'), genreController.deleteGenre);
+genreRoutes.get('/', getGenres);
+genreRoutes.get('/:id', getGenre);
+genreRoutes.post('/', soloAdmin, validate(createGenreSchema), createGenre);
+genreRoutes.patch('/:id', soloAdmin, validate(updateGenreSchema), updateGenre);
+genreRoutes.delete('/:id', soloAdmin, deleteGenre);
 
-module.exports = router;
+export default genreRoutes;

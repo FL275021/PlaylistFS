@@ -1,7 +1,7 @@
-const streamifier = require('streamifier');
-const cloudinary = require('../config/cloudinary');
+import { Readable } from 'stream';
+import cloudinary from '../config/cloudinary.js';
 
-exports.uploadImageBuffer = (buffer, folder = 'music-playlist-api/covers') =>
+export const uploadImageBuffer = (buffer, folder = 'music-playlist-api/covers') =>
   new Promise((resolve, reject) => {
     const uploadStream = cloudinary.uploader.upload_stream(
       { folder, resource_type: 'image' },
@@ -10,5 +10,5 @@ exports.uploadImageBuffer = (buffer, folder = 'music-playlist-api/covers') =>
         resolve(result);
       }
     );
-    streamifier.createReadStream(buffer).pipe(uploadStream);
+    Readable.from(buffer).pipe(uploadStream);
   });

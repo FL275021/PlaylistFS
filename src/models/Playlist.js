@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const trackSchema = new mongoose.Schema(
   {
@@ -13,11 +13,19 @@ const trackSchema = new mongoose.Schema(
   { _id: true }
 );
 
+trackSchema.set('toJSON', {
+  transform: (doc, ret) => {
+    ret.id = ret._id;
+    delete ret._id;
+    return ret;
+  },
+});
+
 const playlistSchema = new mongoose.Schema(
   {
     name: {
       type: String,
-      required: [true, 'Playlist name is required'],
+      required: [true, 'El nombre de la playlist es obligatorio'],
       trim: true,
     },
     description: {
@@ -28,27 +36,18 @@ const playlistSchema = new mongoose.Schema(
     genre: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Genre',
-      required: [true, 'Playlist genre is required'],
+      required: [true, 'El género de la playlist es obligatorio'],
     },
-    coverImageUrl: {
-      type: String,
-      default: '',
-    },
+    coverImageUrl: { type: String, default: '' },
     tracks: [trackSchema],
     owner: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
     },
-    // Short AI-generated mood/vibe description - see services/ai.service.js
-    aiVibeSummary: {
-      type: String,
-      default: '',
-    },
-    isPublic: {
-      type: Boolean,
-      default: true,
-    },
+    // Descripción de ambiente generada por IA - ver services/ai.service.js
+    aiVibeSummary: { type: String, default: '' },
+    isPublic: { type: Boolean, default: true },
   },
   { timestamps: true }
 );
@@ -56,4 +55,14 @@ const playlistSchema = new mongoose.Schema(
 playlistSchema.index({ owner: 1, genre: 1 });
 playlistSchema.index({ name: 'text' });
 
-module.exports = mongoose.model('Playlist', playlistSchema);
+playlistSchema.set('toJSON', {
+  transform: (doc, ret) => {
+    ret.id = ret._id;
+    delete ret._id;
+    delete ret.__v;
+    return ret;
+  },
+});
+
+const Playlist = mongoose.model('Playlist', playlistSchema);
+export default Playlist;

@@ -1,22 +1,26 @@
-const express = require('express');
-const userController = require('../../controllers/userController');
-const validate = require('../../middlewares/validate');
-const { updateMeSchema } = require('../../validations/userValidation');
-const { protect, restrictTo } = require('../../middlewares/auth');
+import { Router } from 'express';
+import {
+  upgradePlan, getUsage, updateMe, deleteMe,
+  getAllUsers, getUserById, deleteUser,
+} from '../../controllers/userController.js';
+import { validate } from '../../middlewares/validate.middleware.js';
+import { updateMeSchema } from '../../schemas/user.schema.js';
+import { protect } from '../../middlewares/auth.middleware.js';
+import { soloAdmin } from '../../middlewares/rol.middleware.js';
 
-const router = express.Router();
+const userRoutes = Router();
 
-router.use(protect);
+userRoutes.use(protect);
 
-// Self-service (any authenticated user, own account only)
-router.patch('/me/upgrade-plan', userController.upgradePlan);
-router.get('/me/usage', userController.getUsage);
-router.patch('/me', validate(updateMeSchema), userController.updateMe);
-router.delete('/me', userController.deleteMe);
+// Auto-gestión del usuario autenticado
+userRoutes.patch('/me/upgrade-plan', upgradePlan);
+userRoutes.get('/me/usage', getUsage);
+userRoutes.patch('/me', validate(updateMeSchema), updateMe);
+userRoutes.delete('/me', deleteMe);
 
-// Admin-only user management
-router.get('/', restrictTo('admin'), userController.getAllUsers);
-router.get('/:id', restrictTo('admin'), userController.getUserById);
-router.delete('/:id', restrictTo('admin'), userController.deleteUser);
+// Solo admin
+userRoutes.get('/', soloAdmin, getAllUsers);
+userRoutes.get('/:id', soloAdmin, getUserById);
+userRoutes.delete('/:id', soloAdmin, deleteUser);
 
-module.exports = router;
+export default userRoutes;

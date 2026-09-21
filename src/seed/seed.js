@@ -1,10 +1,15 @@
-require('dotenv').config();
-const mongoose = require('mongoose');
-const connectDB = require('../config/db');
-const User = require('../models/User');
-const Genre = require('../models/Genre');
+import 'dotenv/config';
+import mongoose from 'mongoose';
+import { connectDB } from '../config/db.js';
+import User from '../models/User.js';
+import Genre from '../models/Genre.js';
+import { hashear } from '../utils/hash.util.js';
+import { Role } from '../constants/role.constants.js';
+import { Plan } from '../constants/plan.constants.js';
 
-const DEFAULT_GENRES = ['Pop', 'Rock', 'Jazz', 'Hip-Hop', 'Electronic', 'Classical', 'Reggaeton'];
+const GENEROS_DEFAULT = [
+  'Pop', 'Rock', 'Jazz', 'Hip-Hop', 'Electrónica', 'Clásica', 'Reggaetón', 'Cumbia',
+];
 
 const seed = async () => {
   await connectDB();
@@ -13,34 +18,35 @@ const seed = async () => {
   const adminEmail = process.env.ADMIN_EMAIL || 'admin@example.com';
   const adminPassword = process.env.ADMIN_PASSWORD || 'ChangeMe123!';
 
-  const existingAdmin = await User.findOne({ username: adminUsername });
-  if (!existingAdmin) {
+  const existeAdmin = await User.findOne({ username: adminUsername });
+  if (!existeAdmin) {
+    const passwordHash = await hashear(adminPassword);
     await User.create({
       username: adminUsername,
       email: adminEmail,
-      password: adminPassword,
-      role: 'admin',
-      plan: 'premium',
+      password: passwordHash,
+      role: Role.admin,
+      plan: Plan.premium,
     });
-    console.log(`Admin user created: ${adminUsername} / ${adminEmail}`);
+    console.log(`Usuario admin creado: ${adminUsername} / ${adminEmail}`);
   } else {
-    console.log('Admin user already exists, skipping.');
+    console.log('El usuario admin ya existe, omitiendo.');
   }
 
-  for (const name of DEFAULT_GENRES) {
-    const exists = await Genre.findOne({ name });
-    if (!exists) {
+  for (const name of GENEROS_DEFAULT) {
+    const existe = await Genre.findOne({ name });
+    if (!existe) {
       await Genre.create({ name });
-      console.log(`Genre created: ${name}`);
+      console.log(`Género creado: ${name}`);
     }
   }
 
-  console.log('Seed complete.');
+  console.log('Seed completado.');
   await mongoose.disconnect();
   process.exit(0);
 };
 
 seed().catch((err) => {
-  console.error('Seed failed:', err);
+  console.error('Seed falló:', err.message);
   process.exit(1);
 });

@@ -1,10 +1,10 @@
-const express = require('express');
-const trackController = require('../../controllers/trackController');
-const { protect } = require('../../middlewares/auth');
+import { Router } from 'express';
+import { searchTracks } from '../../controllers/trackController.js';
+import { protect } from '../../middlewares/auth.middleware.js';
 
-const router = express.Router();
+const trackRoutes = Router();
 
-router.use(protect);
-router.get('/search', trackController.searchTracks);
+trackRoutes.use(protect);
+trackRoutes.get('/search', searchTracks);
 
-module.exports = router;
+export default trackRoutes;

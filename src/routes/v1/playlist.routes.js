@@ -1,29 +1,30 @@
-const express = require('express');
-const multer = require('multer');
-const playlistController = require('../../controllers/playlistController');
-const validate = require('../../middlewares/validate');
-const {
-  createPlaylistSchema,
-  updatePlaylistSchema,
-  addTrackSchema,
-} = require('../../validations/playlistValidation');
-const { protect } = require('../../middlewares/auth');
-const { enforcePlaylistLimit } = require('../../middlewares/planCheck');
+import { Router } from 'express';
+import multer from 'multer';
+import {
+  createPlaylist, getPlaylists, getPlaylist,
+  updatePlaylist, deletePlaylist,
+  uploadCoverImage, addTrack, removeTrack, generateVibe,
+} from '../../controllers/playlistController.js';
+import { validate } from '../../middlewares/validate.middleware.js';
+import { createPlaylistSchema, updatePlaylistSchema, addTrackSchema } from '../../schemas/playlist.schema.js';
+import { protect } from '../../middlewares/auth.middleware.js';
+import { enforcePlaylistLimit } from '../../middlewares/planCheck.middleware.js';
+import { sanitizeTextFields } from '../../middlewares/sanitize.middleware.js';
 
-const router = express.Router();
+const playlistRoutes = Router();
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } });
 
-router.use(protect);
+playlistRoutes.use(protect);
 
-router.get('/', playlistController.getPlaylists);
-router.post('/', enforcePlaylistLimit, validate(createPlaylistSchema), playlistController.createPlaylist);
-router.get('/:id', playlistController.getPlaylist);
-router.patch('/:id', validate(updatePlaylistSchema), playlistController.updatePlaylist);
-router.delete('/:id', playlistController.deletePlaylist);
+playlistRoutes.get('/', getPlaylists);
+playlistRoutes.post('/', enforcePlaylistLimit, sanitizeTextFields('name', 'description'), validate(createPlaylistSchema), createPlaylist);
+playlistRoutes.get('/:id', getPlaylist);
+playlistRoutes.patch('/:id', sanitizeTextFields('name', 'description'), validate(updatePlaylistSchema), updatePlaylist);
+playlistRoutes.delete('/:id', deletePlaylist);
 
-router.post('/:id/cover-image', upload.single('image'), playlistController.uploadCoverImage);
-router.post('/:id/tracks', validate(addTrackSchema), playlistController.addTrack);
-router.delete('/:id/tracks/:trackId', playlistController.removeTrack);
-router.post('/:id/generate-vibe', playlistController.generateVibe);
+playlistRoutes.post('/:id/cover-image', upload.single('image'), uploadCoverImage);
+playlistRoutes.post('/:id/tracks', sanitizeTextFields('title', 'artist', 'album'), validate(addTrackSchema), addTrack);
+playlistRoutes.delete('/:id/tracks/:trackId', removeTrack);
+playlistRoutes.post('/:id/generate-vibe', generateVibe);
 
-module.exports = router;
+export default playlistRoutes;
