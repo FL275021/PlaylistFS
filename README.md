@@ -1,21 +1,19 @@
-# Music Playlist API
+# API Playlist 
 
-Backend for a music playlist app — Obligatorio 1, Desarrollo Full Stack integrado con IA (ORT).
-
-Users build playlists ("collections") tagged with genres ("categories"), search real track
-metadata from a public music API, upload cover art, and get an AI-generated "vibe" description
-for each playlist.
+Usuarios crean sus playlists("colecciones") de diferentes generos("categorias"), con canciones traidas de una API publica
+Buscan las canciones y las añaden, adjuntan y suben imagenes para la cubierta y pueden pedir una descripcion generada por IA
+para cada playlist creada. 
 
 ## Stack
 
 Node.js · Express · MongoDB/Mongoose · JWT · Joi · BcryptJS · Cloudinary · Anthropic API
 
-## Getting started
+## Para empezar
 
 ```bash
 npm install
-cp .env.example .env   # then fill in MONGO_URI, JWT_SECRET, Cloudinary and Anthropic keys
-npm run seed            # creates the admin user + starter genres
+cp .env.example .env   #  MONGO_URI, JWT_SECRET, Cloudinary and Anthropic keys
+npm run seed            # crea usuario admin y generos iniciales
 npm run dev              # http://localhost:4000
 ```
 
@@ -31,11 +29,11 @@ Health check: `GET /health`
 
 ## Endpoints (`/api/v1`)
 
-**Unprotected**
+**Desprotejidos**
 - `POST /auth/register` — creates a `user`/`plus` account, returns a JWT immediately (supports frontend auto-login)
 - `POST /auth/login` — `{ identifier, password }`, `identifier` is username or email
 
-**Protected** (`Authorization: Bearer <token>`)
+**Protejidos** (`Authorization: Bearer <token>`)
 - `GET /auth/me`
 - `PATCH /users/me/upgrade-plan` — plus → premium
 - `GET /users/me/usage` — `{ plan, used, limit, percentageUsed }`, feeds the frontend's usage widget
@@ -51,43 +49,30 @@ Health check: `GET /health`
 - `POST /playlists/:id/tracks` / `DELETE /playlists/:id/tracks/:trackId`
 - `POST /playlists/:id/generate-vibe` — AI-generated description; falls back to a default sentence if the AI call fails, so this can never break the app
 
-## Design notes
+## Notas de diseño
 
-- Layered architecture: `routes → controllers → services → models`, with Joi validation and auth/plan-check middleware in front of every protected controller.
-- Centralized error handling (`AppError` + `errorHandler`) normalizes Mongoose/JWT errors into consistent `{ status, message }` responses with correct status codes.
-- OWASP API Top 10: `helmet`, `express-rate-limit` (stricter on `/auth`), `express-mongo-sanitize`, bcrypt hashing, JWT auth, server-side re-validation of everything the client sends (never trust the frontend's disabled-button logic alone).
-- All business rules (4-playlist cap, genre-in-use delete guard, ownership checks) are enforced server-side, independent of the frontend.
+- Arquitectura:`routes → controllers → services → models`, validación Joi, auth y chequeo de "plan" con middleware en cada controlador protegido.
+- Handler para errores centralizado(`AppError` + `errorHandler`), toma los mensajes Mongoose/JWT y los devuelve como `{ status, message }`
+- OWASP(Open Web Application Security Project) API Top 10: `helmet`, `express-rate-limit` (stricto `/auth`), `express-mongo-sanitize`, hashing, JWT auth, revalidacion del lado del servidor de todo lo mandado por le client.
+- Todas las reglas de negocio(4-playlist cap, Bloquea borrado de Genero En Uso , chequea prpietario) son del lado servidor, independientes del frontend.
 
-## Deploying to Vercel
+##  Vercel
+La aplicacion es exportada sin llamar al `.listen()`, envuelto en `api/index.js` como una funcion, y `vercel.json` reescribe todas las request.
+Setea las mismas variables de ambiente de `.env` en la configuración del proyecto en Vercel y despues ejecuta `vercel --prod`.
 
-The app is exported without calling `.listen()`, wrapped by `api/index.js` as a serverless
-function, and `vercel.json` rewrites every request to it. Set the same environment variables
-from `.env` in the Vercel project settings, then `vercel --prod`.
+## Postman 
+`postman/music-playlist-api.postman_collection.json` — one coleccion, 7 carpetas (Auth, Genres, Playlists Core, Users, Playlists After Upgrade, Tracks, Cleanup), 95 requests para cada codigo de estado implementado en cada endpoint.
 
-## Postman collection
+**Importa el Orden**
+Request guardan las IDs/tokens para futuras requests(`access_token`, `playlist_id`, `genre_id`), y el flujo de limite por plan depende de este orden:
+Crea 4 playlists como `plus` -> la 5ta es rechazada (403) -> sube de plan -> crea la 5ta
 
-`postman/music-playlist-api.postman_collection.json` — one collection, 7 numbered folders (Auth,
-Genres, Playlists Core, Users, Playlists After Upgrade, Tracks, Cleanup), 95 requests covering
-every implemented status code on every endpoint.
+**Antes de correrlo:**
+1. `npm run seed` para BdD `prod_base_url` apunta a.
+2. En la coleccion abrir **Variables** y modificar la `prod_base_url` como `http://localhost:4000` mientras se desarrolla, para el URL de despliegue de Vercel.
+3. Confirmar `admin_username` / `admin_password` se el mismo en `.env` `ADMIN_USERNAME` / `ADMIN_PASSWORD`.
+4. La request **"Upload Cover Image - Success (200) \[MANUAL\]"**, necesita un archivo de imagen real adjuntado en la UI de Postman — Esta es la unica request de ese endpoint (400/401/403) que no es automatizada.
 
-**Folder order matters.** Requests save IDs/tokens into collection variables for later requests
-to use (e.g. `access_token`, `playlist_id`, `genre_id`), and the plan-limit flow specifically
-depends on running in order: 4 playlists get created as `plus` → the 5th is rejected (403) →
-plan is upgraded → the 5th succeeds. Use **Run collection** (Collection Runner), not individual
-folders in isolation, on a first pass.
+La coleccion fue generada por un script que toma la data en `postman/generator/`, si eso cambia editar `folder-*.js` y correr `node build.js` que genera otro json.
 
-**Before running:**
-1. `npm run seed` against whichever database `prod_base_url` points at (creates the admin account these tests log in as).
-2. Open the collection's **Variables** tab and set `prod_base_url` — to `http://localhost:4000` while developing, to your deployed Vercel URL before final submission (the assignment requires the delivered collection to default to the remote URL).
-3. Confirm `admin_username` / `admin_password` match your `.env`'s `ADMIN_USERNAME` / `ADMIN_PASSWORD`.
-4. One request, **"Upload Cover Image - Success (200) \[MANUAL\]"**, needs a real image file attached by hand in the Postman UI — Postman collections can't portably embed file bytes, so this is the one request per assignment that can't run unattended. Every other status code on that endpoint (400/401/403) is automated.
 
-The collection was generated by a small script rather than hand-built in the Postman UI —
-see `postman/generator/`. If requirements change, edit the relevant `folder-*.js` and run
-`node build.js` to regenerate the JSON, instead of hand-editing 95 requests.
-
-## Still to do
-
-- [x] Build out the Postman collection (folders per resource, tests per status code, `prod_base_url` collection variable).
-- [ ] Deploy to Vercel + MongoDB Atlas, get a public URL, run the full collection against it once for real, and point `prod_base_url` at it before final submission.
-- [ ] Obligatorio 2: React/Redux frontend consuming these endpoints.
