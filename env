@@ -14,8 +14,8 @@ CLOUDINARY_CLOUD_NAME=n9gqtkiy
 CLOUDINARY_API_KEY=788638354614625
 CLOUDINARY_API_SECRET=r4WPZ7UaKcp-XOs2hLNQCe8oyQ4
 
-# AI (para generar lña descripcion de las playlists)
-ANTHROPIC_API_KEY=
+# AI (para generar lña descripcion de las playlists) gemini
+GEMINI_API_KEY=AQ.Ab8RN6L-9mKR22-2tZC2fXHTM5PBDUl0CCF9iDdshJts-kKI5A
 
 # Seed script - crea un usuario admin
 ADMIN_USERNAME=admin
@@ -24,3 +24,7 @@ ADMIN_PASSWORD=Jamaica,123
 
 # Frontend que llama la API //
 CORS_ORIGIN=http://localhost:3000
+
+# redis
+REDIS_URL=redis://default:mPCz1V3frmTB0iOU42gsCPdcXTirkJ7H@amethyst-fulgent-serpentine-73236.db.redis.io:11883
+
