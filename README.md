@@ -1,15 +1,12 @@
 # API Playlist 
-
 Usuarios crean sus playlists("colecciones") de diferentes generos("categorias"), con canciones traidas de una API publica
 Buscan las canciones y las añaden, adjuntan y suben imagenes para la cubierta y pueden pedir una descripcion generada por IA
 para cada playlist creada. 
 
 ## Stack
-
 Node.js · Express · MongoDB/Mongoose · JWT · Joi · BcryptJS · Cloudinary · Anthropic API
 
 ## Para empezar
-
 ```bash
 npm install
 npm run seed            # crea usuario admin y generos iniciales
@@ -19,7 +16,6 @@ npm run dev              # http://localhost:4000
 Health check: `GET /health`
 
 ## Data model
-
 | Model | Notas |
 |---|---|
 | `User` | `username`, `email`, `password` (hashed), `role` (`user`/`admin`, ADMIN se crea solo atraves seed/DB), `plan` (`plus`/`premium`, default `plus`) |
@@ -49,7 +45,6 @@ Health check: `GET /health`
 - `POST /playlists/:id/generate-vibe` — descripcion generada por IA; si la llamada falla, muestra la que esta por defecto.
 
 ## Notas de diseño
-
 - Arquitectura:`routes → controllers → services → models`, validación Joi, auth y chequeo de "plan" con middleware en cada controlador protegido.
 - Handler para errores centralizado(`AppError` + `errorHandler`), toma los mensajes Mongoose/JWT y los devuelve como `{ status, message }`
 - OWASP(Open Web Application Security Project) API Top 10: `helmet`, `express-rate-limit` (stricto `/auth`), `express-mongo-sanitize`, hashing, JWT auth, revalidacion del lado del servidor de todo lo mandado por le client.
