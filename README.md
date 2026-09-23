@@ -12,7 +12,6 @@ Node.js · Express · MongoDB/Mongoose · JWT · Joi · BcryptJS · Cloudinary �
 
 ```bash
 npm install
-cp .env.example .env   #  MONGO_URI, JWT_SECRET, Cloudinary and Anthropic keys
 npm run seed            # crea usuario admin y generos iniciales
 npm run dev              # http://localhost:4000
 ```
