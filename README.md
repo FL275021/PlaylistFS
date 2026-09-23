@@ -20,33 +20,33 @@ Health check: `GET /health`
 
 ## Data model
 
-| Model | Notes |
+| Model | Notas |
 |---|---|
-| `User` | `username`, `email`, `password` (hashed), `role` (`user`/`admin`, admin only via seed/DB), `plan` (`plus`/`premium`, default `plus`) |
-| `Genre` | the "category" entity — `name`, `description`. Admin-managed. Can't be deleted while playlists reference it. |
-| `Playlist` | the "collection" entity — `name`, `description`, `genre` (ref), `coverImageUrl`, `tracks[]`, `owner` (ref), `aiVibeSummary`, `isPublic` |
+| `User` | `username`, `email`, `password` (hashed), `role` (`user`/`admin`, ADMIN se crea solo atraves seed/DB), `plan` (`plus`/`premium`, default `plus`) |
+| `Genre` | La "Categoria" — `name`, `description`. Gestiona ADMIN. No se pueden borrar mientras estan siendo usadas. |
+| `Playlist` | La "Coleccion"  — `name`, `description`, `genre` (ref-Genre), `coverImageUrl`, `tracks[]`, `owner` (ref-User), `aiVibeSummary`, `isPublic` |
 
 ## Endpoints (`/api/v1`)
 
-**Desprotejidos**
-- `POST /auth/register` — creates a `user`/`plus` account, returns a JWT immediately (supports frontend auto-login)
-- `POST /auth/login` — `{ identifier, password }`, `identifier` is username or email
+**Desprotejidas**
+- `POST /auth/register` — crea una cuenta `user`/`plus`, devuelve un JWT(token) inmediatamente (el frontend auto-login)
+- `POST /auth/login` — `{ identifier, password }`, `identifier` el ID es el username o el email
 
-**Protejidos** (`Authorization: Bearer <token>`)
+**Protejidas** (`Authorization: Bearer <token>`)
 - `GET /auth/me`
 - `PATCH /users/me/upgrade-plan` — plus → premium
-- `GET /users/me/usage` — `{ plan, used, limit, percentageUsed }`, feeds the frontend's usage widget
-- `PATCH /users/me` — edit your own username/email
-- `DELETE /users/me` — delete your own account (cascades to your playlists)
-- `GET /users` · `GET /users/:id` · `DELETE /users/:id` — admin-only user management
-- `GET/POST/PATCH/DELETE /genres` — reads open to any user, writes admin-only
-- `GET /playlists` — paginated + filterable (`?genre=<id>&search=text&page=1&limit=10`), scoped to the caller's own playlists
-- `POST /playlists` — blocked at 4 for `plus` users (403), unlimited for `premium`
+- `GET /users/me/usage` — `{ plan, used, limit, percentageUsed }`, alimenta el widget de uso del frontend
+- `PATCH /users/me` — editar tu propio username o email
+- `DELETE /users/me` — borra tu cuenta(y en cascada tus playlists)
+- `GET /users` · `GET /users/:id` · `DELETE /users/:id` — Gestiona ADMIN
+- `GET/POST/PATCH/DELETE /genres` — acceso a cualquier usuario, solo ADMIN edita
+- `GET /playlists` —  paginable y filtrable (`?genre=<id>&search=text&page=1&limit=10`), solo muestra las playlist del que peticiona
+- `POST /playlists` — maximo 4 para usuarios `plus`(403), ilimatado para usuarios `premium`
 - `GET/PATCH/DELETE /playlists/:id`
-- `POST /playlists/:id/cover-image` — multipart `image` field, uploads to Cloudinary
-- `GET /tracks/search?q=` — searches the iTunes Search API (no key, no rate-limit risk)
+- `POST /playlists/:id/cover-image` — campo `image`, lo sube a Cloudinary
+- `GET /tracks/search?q=` — busca las canciones en iTunes API (sin key, ni limite)
 - `POST /playlists/:id/tracks` / `DELETE /playlists/:id/tracks/:trackId`
-- `POST /playlists/:id/generate-vibe` — AI-generated description; falls back to a default sentence if the AI call fails, so this can never break the app
+- `POST /playlists/:id/generate-vibe` — descripcion generada por IA; si la llamada falla, muestra la que esta por defecto.
 
 ## Notas de diseño
 
