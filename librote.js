@@ -137,51 +137,5 @@ middleware:
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/*
-21.Arquitectura de sistemas, desarrollo, especializaciones varias a eleccion
-
-3.La capacidad técnica del equipo y el potencial que tenemos para modernizar la operativa. 
-Valoro la iniciativa que tienen algunos técnicos para buscar soluciones que van más allá del soporte básico.
-
-​4.​La capacidad e intención de querer mejorar y agilizar los procesos internos, y el talento interno. Actualmente, 
-varios miembros del equipo hemos desarrollado herramientas propias de software y scripts para intentar agilizar el trabajo diario.
-
-​5.Definir formalmente escalafones de Seniority (Junior, Semi-Senior, Senior) y crear roles específicos de especialización. 
-Al separar el soporte hardware del soporte software y  definir las tareas de cada rol, el flujo de trabajo sería mucho más eficiente y justo."
-
-6.Como mencione en puntos anteriores, considero que el equipo tiene un gran potencial para modernizar la operativa pero somos limitados por la 
-estructura actual. Personalmente, he invertido mucho tiempo en desarrollar herramientas de automatización para reducir la carga manual en tareas 
-monótonas, y poder invertir mas tiempo en tareas de mayor complejidad. Se que no soy e único que ha implementado o tenga la intención de implementar
- soluciones para mejorar la estructura, por eso creo que la reforma tiene la oportunidad no solo de generar un gran impacto positivo para todo el 
- equipo, sino también retener el talento técnico y potenciar el crecimiento de todo el departamento.
-*/
-
-
-/*
-Totalmente en desacuerdo
-En desacuerdo
-Ni de acuerdo ni en desacuerdo
-De acuerdo
-Totalmente de acuerdo
-No aplica / No tengo elementos para responder
-
-Experiencia de trabajo:32443221
-
 Equipo, desarrollo y motivación:244244234414
 */
