@@ -1,20 +1,11 @@
-// #region ToDo
-/*
 ## TODO
-
-- [x] Build out the Postman collection (folders per resource, tests per status code, `prod_base_url` collection variable).
 - [ ] Deploy to Vercel + MongoDB Atlas, get a public URL, run the full collection against it once for real, and point `prod_base_url` at it before final submission.
 - [ ] Obligatorio 2: React/Redux frontend consuming these endpoints.
 
-left_at:
+TODO AT HOME CAUSE NET:
 //Run npm install, then npm run seed — you should see console logs confirming MongoDB connected and the admin 
 // user/genres were created. Then npm run dev and open http://localhost:4000/health in your browser; you should
 //  see {"status":"success","message":"API is up"}.
-
-
--   Build out the Postman collection (folders per resource, tests per status code, `prod_base_url` collection variable) 
--   Deploy to Vercel + MongoDB Atlas and get a public URL.
--   Obligatorio 2: React/Redux frontend consuming these endpoints. 
 
 
 Click Import.
@@ -23,7 +14,8 @@ Select music-playlist-api.postman_collection.json.
 Click Import.
 Postman will create the collection.
 Before running it, update prod_base_url in the collection variables to your API URL, such as http://localhost:4000.
-    */
+
+*/
 
 
 
@@ -111,6 +103,8 @@ mongodb+srv://<db_username>:<db_password>@fsplaylists.v5tmq88.mongodb.net/?appNa
 commands: 
 npm install mongodb
 
+npm run seed
+
 
 
 
@@ -137,5 +131,3 @@ middleware:
 
 
 
-Equipo, desarrollo y motivación:244244234414
-*/
