@@ -1,4 +1,6 @@
-WE LEFT OFF IN THE POSTMAN TEST, READ LAST RESPONSE AT THE BOTTOM, TRY USING POSTMAN AGENT WITH POSTMAN WEB
+WE LEFT OFF IN THE POSTMAN TEST Phase 1 point 4, 
+READ LAST RESPONSE AT THE BOTTOM, TRY USING POSTMAN AGENT WITH POSTMAN WEB
+VERCEL IS CONNECTED TO GITHUB, WHATS IN GITHUB IS DEPLYED IN VERCEL
 
 Here's a walkthrough for running your collection with Postman, in the order that matches your flow (the plan-limit sequence depends on it).
 
@@ -49,13 +51,13 @@ Make sure the Cleanup folder leaves the DB clean, so you can run the whole colle
 
 Phase 2: Deploy to Vercel + MongoDB Atlas
 
-1. MongoDB Atlas
+1. MongoDB Atlas DONE
 
 Create a free cluster → Database Access: create a user + password.
 Network Access: add 0.0.0.0/0 (Vercel uses dynamic IPs).
 Connect → Drivers: copy the connection string, replacing <password>.
 
-2. Push to GitHub (make sure .env and node_modules are in .gitignore).
+2. Push to GitHub (make sure .env and node_modules are in .gitignore). DONE
 
 3. Vercel
 
