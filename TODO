@@ -2,6 +2,8 @@ WE LEFT OFF IN THE POSTMAN TEST Phase 1 point 4,
 READ LAST RESPONSE AT THE BOTTOM, TRY USING POSTMAN AGENT WITH POSTMAN WEB
 VERCEL IS CONNECTED TO GITHUB, WHATS IN GITHUB IS DEPLYED IN VERCEL
 
+https://vercel.com/esdonalgo-bit/playlist-fs/HPKntdJAzwoMNYazmRLhFmQ41LJw/vercel.app/health
+
 Here's a walkthrough for running your collection with Postman, in the order that matches your flow (the plan-limit sequence depends on it).
 
 Phase 1: Local run (do this first, at home)
@@ -196,7 +198,53 @@ Once you deploy to Vercel and set prod_base_url to the https://...vercel.app URL
 
 If it still fails after switching to the Desktop app or the Agent, paste the error text and I'll look at it with you.
 
+3. Vercel
 
+Import the repo in Vercel.
+Settings → Environment Variables: add everything from your .env (MONGODB_URI with the Atlas string, JWT_SECRET, CLOUDINARY_*, ANTHROPIC_API_KEY, ADMIN_USERNAME, ADMIN_PASSWORD, etc.).
+Deploy (or vercel --prod from the CLI).
+
+4. Seed the production DB
+Run the seed locally, but pointing at Atlas:
+
+bash
+MONGODB_URI="<your atlas string>" npm run seed
+
+(On Windows PowerShell: $env:MONGODB_URI="..."; npm run seed.) Otherwise, the admin login on prod will fail.
+
+5. Check prod health
+Open https://<your-app>.vercel.app/health.
+
+Phase 3: Run against production
+In the collection Variables, set prod_base_url to https://<your-app>.vercel.app, and Save.
+Run the full collection with the Runner again.
+Fix anything that behaves differently in prod. Typical suspects are missing env vars, the Cloudinary config, and Atlas network access.
+Phase 4: Prepare the submission
+
+The assignment requires one folder + two files in a ZIP/RAR (max 40 MB, due 1/10/2026, 21:00):
+
+Source code folder, without node_modules.
+A file with the URL of the published API (e.g. url.txt).
+The exported Postman collection (JSON).
+
+Export tip: the instructor's comment in the PDF notes that exporting can lose the variable's value. Before exporting, put the Vercel URL in both the Initial value and Current value of prod_base_url, then click Save, then Export → Collection v2.1. Open the JSON and search for prod_base_url to confirm the URL is in there.
+
+Quick checklist before submitting
+ Full collection passes against the Vercel URL
+ prod_base_url has the remote URL in the exported JSON
+ Every endpoint has tests for each status code implemented
+ README updated (and mention any AI usage, since the assignment requires citing it)
+ ZIP is under 40 MB with no node_modules
+ You can explain every part of the code for the defense (Oct 5-8)
+
+If you want, tell me what fails when you run it and I can help debug.
+
+
+
+
+
+
+POSTMAN ERRORS:
 
 
 [nodemon] starting `node src/server.js`
