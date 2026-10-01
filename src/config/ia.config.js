@@ -10,7 +10,7 @@ if (!apiKey) {
 const genAI = new GoogleGenerativeAI(apiKey);
 
 const iaModel = genAI.getGenerativeModel({
-  model: 'gemini-2.5-flash-lite',
+  model: 'gemini-3.5-flash-lite',
   systemInstruction: {
     role: 'system',
     parts: [
