@@ -2,7 +2,11 @@ WE LEFT OFF IN THE POSTMAN TEST Phase 1 point 4,
 READ LAST RESPONSE AT THE BOTTOM, TRY USING POSTMAN AGENT WITH POSTMAN WEB
 VERCEL IS CONNECTED TO GITHUB, WHATS IN GITHUB IS DEPLYED IN VERCEL
 
+After adding env vars, run: vercel --prod This creates your real production URL: https://music-playlist-api-YOUR_USERNAME.vercel.app Copy this URL — you'll need it in the next step. You can also find it under your project on vercel.com → Deployments → the top one marked Production
+
 https://vercel.com/esdonalgo-bit/playlist-fs/HPKntdJAzwoMNYazmRLhFmQ41LJw/vercel.app/health
+music-playlist-git-main-esdonalgo-bit.vercel.app
+music-playlist-bjzz50ogk-esdonalgo-bit.vercel.app
 
 Here's a walkthrough for running your collection with Postman, in the order that matches your flow (the plan-limit sequence depends on it).
 
