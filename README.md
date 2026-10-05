@@ -11,9 +11,13 @@ Node.js · Express · MongoDB/Mongoose · JWT · Joi · BcryptJS · Cloudinary �
 npm install
 npm run seed            # crea usuario admin y generos iniciales
 npm run dev              # http://localhost:4000
+npm test                 # ejecuta las pruebas automatizadas locales
+npm run test:collection  # ejecuta los 95 requests Postman en servicios locales aislados
 ```
 
 Health check: `GET /health`
+
+Las pruebas automatizadas usan `node:test` y no se conectan a MongoDB Atlas. `npm run test:collection` inicia una base MongoDB en memoria y una API local, carga los datos iniciales de prueba y ejecuta todos los requests de `postman/collection.json`; no requiere ni lee credenciales de `.env`. Cloudinary se sustituye por un stub local y Gemini se desactiva para comprobar su respuesta de fallback. La búsqueda de pistas consulta iTunes y requiere conexión a internet. La colección ejecutada manualmente desde Postman crea y elimina datos, por lo que `prod_base_url` debe apuntar a un entorno desechable.
 
 ## Data model
 | Model | Notas |
@@ -61,12 +65,6 @@ Setea las mismas variables de ambiente de `.env` en la configuración del proyec
 Request guardan las IDs/tokens para futuras requests(`access_token`, `playlist_id`, `genre_id`), y el flujo de limite por plan depende de este orden:
 Crea 4 playlists como `plus` -> la 5ta es rechazada (403) -> sube de plan -> crea la 5ta
 
-**Antes de correrlo:**
-1. `npm run seed` para BdD `prod_base_url` apunta a.
-2. En la coleccion abrir **Variables** y modificar la `prod_base_url` como `http://localhost:4000` mientras se desarrolla, para el URL de despliegue de Vercel.
-3. Confirmar `admin_username` / `admin_password` se el mismo en `.env` `ADMIN_USERNAME` / `ADMIN_PASSWORD`.
-4. La request **"Upload Cover Image - Success (200) \[MANUAL\]"**, necesita un archivo de imagen real adjuntado en la UI de Postman — Esta es la unica request de ese endpoint (400/401/403) que no es automatizada.
-
-La coleccion fue generada por un script que toma la data en `postman/generator/`, si eso cambia editar `folder-*.js` y correr `node build.js` que genera otro json.
 
 
+La coleccion fue generada por un script que toma la data en `postman/generator/`
