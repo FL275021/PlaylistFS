@@ -1,0 +1,4452 @@
+{
+  "info": {
+    "_postman_id": "6873e7d5-3979-4000-968f-a140d35b2130",
+    "name": "API de lista de reproducción de música",
+    "description": "QUERY LENGTH LIMIT EXCEEDED. MAX ALLOWED QUERY : 500 CHARS",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "01 - Aut.",
+      "item": [
+        {
+          "name": "Registro - Error de validación (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 400:\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"El campo de estado del cuerpo es 'fail'\", function () { pm.expect(pm.response.json().status).to.eql(\"fail\"); });",
+                  "pm.test(\"El mensaje de error está presente\", function () { pm.expect(pm.response.json().message).to.exist; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/auth/register",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Nombre de usuario demasiado corto, correo electrónico no válido, contraseña de menos de 8 caracteres: se debe informar de los tres.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"ab\",\n  \"email\": \"not-an-email\",\n  \"password\": \"short\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registro - Éxito (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"El campo de estado del cuerpo es 'éxito'\", function () { pm.expect(pm.response.json().status).to.eql(\"success\"); });",
+                  "pm.test(\"El token está presente\", function () { pm.expect(pm.response.json().token).to.exist; });",
+                  "pm.test(\"El ID de usuario está presente\", function () { pm.expect(pm.response.json().data.user.id).to.exist; });",
+                  "pm.test(\"El rol predeterminado es usuario\", function () { pm.expect(pm.response.json().data.user.role).to.eql(\"user\"); });",
+                  "pm.test(\"El plan predeterminado es Plus\", function () { pm.expect(pm.response.json().data.user.plan).to.eql(\"plus\"); });",
+                  "pm.collectionVariables.set(\"access_token\", pm.response.json().token);",
+                  "pm.collectionVariables.set(\"user1_username\", pm.response.json().data.user.username);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/auth/register",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Crea el usuario de prueba principal. Guarda el token inmediatamente (inicio de sesión automático) y el nombre de usuario resuelto para su reutilización en solicitudes posteriores.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"user1{{$timestamp}}\",\n  \"email\": \"user1{{$timestamp}}@example.com\",\n  \"password\": \"{{test_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registro - Nombre de usuario duplicado (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"El campo de estado del cuerpo es 'fail'\", function () { pm.expect(pm.response.json().status).to.eql(\"fail\"); });",
+                  "pm.test(\"Menciona el conflicto\", function () { pm.expect(pm.response.json().message).to.include(\"already registered\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/auth/register",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{user1_username}}\",\n  \"email\": \"different{{$timestamp}}@example.com\",\n  \"password\": \"{{test_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Inicio de sesión - Error de validación (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 400:\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Mensaje personalizado mostrado\", function () { pm.expect(pm.response.json().message).to.include(\"Username or email is required\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/auth/login",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Omite el \"identificador\" por completo para activar el mensaje de campo obligatorio personalizado.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"password\": \"{{test_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Inicio de sesión - Credenciales no válidas (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });",
+                  "pm.test(\"Mensaje genérico de credenciales no válidas\", function () { pm.expect(pm.response.json().message).to.include(\"Invalid username/email or password\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/auth/login",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{user1_username}}\",\n  \"password\": \"WrongPassword999!\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Inicio de sesión - Éxito (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"El campo de estado del cuerpo es 'éxito'\", function () { pm.expect(pm.response.json().status).to.eql(\"success\"); });",
+                  "pm.test(\"El token está presente\", function () { pm.expect(pm.response.json().token).to.exist; });",
+                  "pm.test(\"El nombre de usuario coincide con el usuario registrado\", function () {\n  pm.expect(pm.response.json().data.user.username).to.eql(pm.collectionVariables.get(\"user1_username\"));\n});",
+                  "pm.collectionVariables.set(\"access_token\", pm.response.json().token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/auth/login",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{user1_username}}\",\n  \"password\": \"{{test_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Me - Éxito (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Devuelve el propio perfil del usuario que ha iniciado sesión\", function () {\n  pm.expect(pm.response.json().data.user.username).to.eql(pm.collectionVariables.get(\"user1_username\"));\n});",
+                  "pm.test(\"El plan es Plus (aún no se ha actualizado)\", function () { pm.expect(pm.response.json().data.user.plan).to.eql(\"plus\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/auth/me",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Me - No Auth (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });",
+                  "pm.test(\"Explica el token faltante\", function () { pm.expect(pm.response.json().message).to.include(\"not logged in\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/auth/me",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registro - Segundo usuario (para pruebas de propiedad) - Éxito (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set(\"user2_access_token\", pm.response.json().token);",
+                  "pm.collectionVariables.set(\"user2_username\", pm.response.json().data.user.username);",
+                  "pm.collectionVariables.set(\"user2_id\", pm.response.json().data.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/auth/register",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Una segunda cuenta se usó más tarde para probar las comprobaciones de propiedad (403) en las listas de reproducción de otro usuario.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"user2{{$timestamp}}\",\n  \"email\": \"user2{{$timestamp}}@example.com\",\n  \"password\": \"{{test_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registro - Tercer usuario (objetivo de prueba de administrador) - Éxito (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set(\"user3_id\", pm.response.json().data.user.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/auth/register",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "register"
+              ]
+            },
+            "description": "Una cuenta desechable utilizada exclusivamente como objetivo de las pruebas admin GET/DELETE-by-id.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"user3{{$timestamp}}\",\n  \"email\": \"user3{{$timestamp}}@example.com\",\n  \"password\": \"{{test_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Iniciar sesión como administrador - Correcto (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Es administrador\", function () { pm.expect(pm.response.json().data.user.role).to.eql(\"admin\"); });",
+                  "pm.collectionVariables.set(\"admin_access_token\", pm.response.json().token);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/auth/login",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "auth",
+                "login"
+              ]
+            },
+            "description": "Requiere que `npm run seed` se haya ejecutado en la base de datos a la que apunta esta recopilación, y que admin_username/admin_password coincida con su .env ADMIN_USERNAME/ADMIN_PASSWORD.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"identifier\": \"{{admin_username}}\",\n  \"password\": \"{{admin_password}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "02 - Géneros",
+      "item": [
+        {
+          "name": "Crear género - Error de validación (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 400:\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/genres",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "genres"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear género - Prohibido no administrador (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Bloqueado por la verificación de roles\", function () { pm.expect(pm.response.json().message).to.include(\"permission\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/genres",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "genres"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"ShouldNotBeCreated\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear género - Sin autenticación (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/genres",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "genres"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"ShouldNotBeCreatedEither\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear género - Éxito (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"El campo de estado del cuerpo es 'éxito'\", function () { pm.expect(pm.response.json().status).to.eql(\"success\"); });",
+                  "pm.test(\"El identificador de género está presente\", function () { pm.expect(pm.response.json().data.genre.id).to.exist; });",
+                  "pm.collectionVariables.set(\"genre_id\", pm.response.json().data.genre.id);",
+                  "pm.collectionVariables.set(\"genre_name\", pm.response.json().data.genre.name);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/genres",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "genres"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pop {{$timestamp}}\",\n  \"description\": \"Upbeat mainstream music\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear género - Nombre duplicado (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"Duplicado de menciones\", function () { pm.expect(pm.response.json().message).to.include(\"already exists\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/genres",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "genres"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"{{genre_name}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear segundo género (para la prueba de eliminación y protección más adelante) - Éxito (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set(\"genre_conflict_id\", pm.response.json().data.genre.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/genres",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "genres"
+              ]
+            },
+            "description": "Se mantiene sin usar por ahora: se asigna a una lista de reproducción en la carpeta Listas de reproducción, luego se usa para probar la protección de eliminación en uso en la carpeta Limpieza.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rock {{$timestamp}}\",\n  \"description\": \"Guitar-driven genre\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener todos los géneros - Éxito (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"La matriz de géneros está presente\", function () { pm.expect(pm.response.json().data.genres).to.exist; });",
+                  "pm.test(\"Los metadatos de paginación están presentes\", function () { pm.expect(pm.response.json().pagination).to.exist; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/genres",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "genres"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener todos los géneros - Sin autenticación (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/genres",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "genres"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener género por ID - Éxito (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"El género devuelto coincide con el ID solicitado\", function () {\n  pm.expect(pm.response.json().data.genre.id).to.eql(pm.collectionVariables.get(\"genre_id\"));\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/genres/{{genre_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "genres",
+                "{{genre_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener género por ID - No encontrado (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 404\", function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/genres/507f191e810c19729de860ea",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "genres",
+                "507f191e810c19729de860ea"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener género por ID - Sin autenticación (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/genres/{{genre_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "genres",
+                "{{genre_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar género - Éxito (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Se ha actualizado la descripción\", function () { pm.expect(pm.response.json().data.genre.description).to.eql(\"Updated description via Postman test\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/genres/{{genre_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "genres",
+                "{{genre_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Updated description via Postman test\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar género - No encontrado (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 404\", function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/genres/507f191e810c19729de860ea",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "genres",
+                "507f191e810c19729de860ea"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"x\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar género - Prohibido no administrador (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/genres/{{genre_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "genres",
+                "{{genre_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"hacked\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar género - Sin autenticación (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/genres/{{genre_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "genres",
+                "{{genre_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"hacked\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar género - No encontrado (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 404\", function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/genres/507f191e810c19729de860ea",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "genres",
+                "507f191e810c19729de860ea"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar género - Prohibido no administrador (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/genres/{{genre_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "genres",
+                "{{genre_id}}"
+              ]
+            },
+            "description": "Bloqueado por la verificación de roles antes de que se considere la propiedad/uso, por lo que genre_id sobrevive para la carpeta Playlists."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar género - Sin autenticación (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/genres/{{genre_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "genres",
+                "{{genre_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "03 - Listas de reproducción (Core)",
+      "item": [
+        {
+          "name": "Crear lista de reproducción - Error de validación (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 400:\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Missing both name and genre\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear lista de reproducción - Género no encontrado (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 404\", function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Road Trip Mix\",\n  \"genre\": \"507f191e810c19729de860ea\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear lista de reproducción - Sin autenticación (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Road Trip Mix\",\n  \"genre\": \"507f191e810c19729de860ea\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear lista de reproducción - Éxito (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.test(\"El campo de estado del cuerpo es 'éxito'\", function () { pm.expect(pm.response.json().status).to.eql(\"success\"); });",
+                  "pm.test(\"El id de la lista de reproducción está presente\", function () { pm.expect(pm.response.json().data.playlist.id).to.exist; });",
+                  "pm.test(\"isPublic por defecto es true\", function () { pm.expect(pm.response.json().data.playlist.isPublic).to.eql(true); });",
+                  "pm.collectionVariables.set(\"playlist_id\", pm.response.json().data.playlist.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              { 
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists"
+              ]
+            },
+            "description": "Lista de reproducción n .º1 para este usuario de plan plus (se permite 1 de 4).",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Road Trip Mix\",\n  \"description\": \"Songs for a long drive\",\n  \"genre\": \"{{genre_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener todas las listas de reproducción - Éxito (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Los metadatos de paginación están presentes\", function () { pm.expect(pm.response.json().pagination).to.exist; });",
+                  "pm.test(\"La lista incluye la lista de reproducción creada\", function () {\n  const ids = pm.response.json().data.playlists.map((p) => p.id);\n  pm.expect(ids).to.include(pm.collectionVariables.get(\"playlist_id\"));\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener todas las listas de reproducción - Sin autenticación (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener todas las listas de reproducción - Filtradas por género - Éxito (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Cada resultado coincide con el género solicitado\", function () {\n  const genreId = pm.collectionVariables.get(\"genre_id\");\n  const playlists = pm.response.json().data.playlists;\n  playlists.forEach((p) => pm.expect(p.genre.id).to.eql(genreId));\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists?genre={{genre_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists"
+              ],
+              "query": [
+                {
+                  "key": "genre",
+                  "value": "{{genre_id}}"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener lista de reproducción por ID - Éxito (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"El nombre coincide con lo que se creó\", function () { pm.expect(pm.response.json().data.playlist.name).to.eql(\"Road Trip Mix\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{playlist_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{playlist_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener lista de reproducción por ID - No encontrado (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 404\", function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/507f191e810c19729de860ea",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "507f191e810c19729de860ea"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener lista de reproducción por ID - Prohibido no propietario (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user2_access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{playlist_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{playlist_id}}"
+              ]
+            },
+            "description": "user2 intentando leer una lista de reproducción propiedad de user1."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener lista de reproducción por ID - Sin autenticación (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{playlist_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{playlist_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar lista de reproducción - Éxito (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"fue actualizado\", function () { pm.expect(pm.response.json().data.playlist.name).to.eql(\"Road Trip Mix (Updated)\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{playlist_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{playlist_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Road Trip Mix (Updated)\",\n  \"description\": \"Updated via Postman\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar lista de reproducción - Error de validación (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 400:\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{playlist_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{playlist_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"genre\": \"not-a-valid-object-id\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar lista de reproducción - No propietario (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user2_access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{playlist_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{playlist_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Hijacked\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar lista de reproducción - Sin autenticación (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{playlist_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{playlist_id}}"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Hijacked\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Añadir pista - Éxito (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 201\", function () { pm.response.to.have.status(201); });",
+                  "const tracks = pm.response.json().data.playlist.tracks;\nconst last = tracks[tracks.length - 1];\npm.test(\"La pista se adjuntó con el título correcto\", function () {\n  pm.expect(last.title).to.eql(\"Highway to Hell\");\n});\npm.collectionVariables.set(\"track_id\", last.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{playlist_id}}/tracks",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{playlist_id}}",
+                "tracks"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Highway to Hell\",\n  \"artist\": \"AC/DC\",\n  \"album\": \"Highway to Hell\",\n  \"durationMs\": 208000\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Añadir pista - Error de validación (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 400:\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{playlist_id}}/tracks",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{playlist_id}}",
+                "tracks"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"No Artist Provided\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Añadir pista - No propietario (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user2_access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{playlist_id}}/tracks",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{playlist_id}}",
+                "tracks"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Intruder\",\n  \"artist\": \"Nobody\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Añadir pista - Sin autenticación (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{playlist_id}}/tracks",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{playlist_id}}",
+                "tracks"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Intruder\",\n  \"artist\": \"Nobody\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Subir imagen de portada - Sin archivo (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 400:\", function () { pm.response.to.have.status(400); });",
+                  "pm.test(\"Explica que no se ha enviado ningún archivo\", function () { pm.expect(pm.response.json().message).to.include(\"No image file\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{playlist_id}}/cover-image",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{playlist_id}}",
+                "cover-image"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Subir imagen de portada - No propietario (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user2_access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{playlist_id}}/cover-image",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{playlist_id}}",
+                "cover-image"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Subir imagen de portada - Sin autenticación (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{playlist_id}}/cover-image",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{playlist_id}}",
+                "cover-image"
+              ]
+            },
+            "body": {
+              "mode": "formdata",
+              "formdata": []
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Subir imagen de portada - Éxito (200) [MANUAL: adjuntar un archivo de imagen]",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Se ha establecido la URL de la imagen de portada\", function () { pm.expect(pm.response.json().data.playlist.coverImageUrl).to.exist; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{playlist_id}}/cover-image",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{playlist_id}}",
+                "cover-image"
+              ]
+            },
+            "description": "Las cargas de archivos no se pueden incrustar en una colección exportada de Postman. Antes de ejecutar esta solicitud manualmente, haga clic en el campo \"imagen\" y seleccione cualquier archivo de imagen local, luego envíe. Requiere credenciales válidas de Cloudinary en el .env de la API.",
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                {
+                  "key": "image",
+                  "type": "file",
+                  "src": []
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Generar Vibe - Éxito (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"El resumen de AI Vibe está presente\", function () { pm.expect(pm.response.json().data.aiVibeSummary).to.exist; });",
+                  "pm.test(\"generatedByAI es un booleano\", function () {\n  pm.expect(pm.response.json().data.generatedByAI).to.be.a(\"boolean\");\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{playlist_id}}/generate-vibe",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{playlist_id}}",
+                "generate-vibe"
+              ]
+            },
+            "description": "Funciona incluso sin una ANTHROPIC_API_KEY configurada: vuelve a una descripción predeterminada, por lo que siempre debe devolver 200."
+          },
+          "response": []
+        },
+        {
+          "name": "Generar ambiente - No propietario (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user2_access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{playlist_id}}/generate-vibe",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{playlist_id}}",
+                "generate-vibe"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Generar ambiente - Sin autenticación (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{playlist_id}}/generate-vibe",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{playlist_id}}",
+                "generate-vibe"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar pista - Éxito (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"La pista ya no aparece en la lista de reproducción\", function () {\n  const removedId = pm.collectionVariables.get(\"track_id\");\n  const ids = pm.response.json().data.playlist.tracks.map((t) => t.id);\n  pm.expect(ids).to.not.include(removedId);\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{playlist_id}}/tracks/{{track_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{playlist_id}}",
+                "tracks",
+                "{{track_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar pista - No propietario (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user2_access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{playlist_id}}/tracks/{{track_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{playlist_id}}",
+                "tracks",
+                "{{track_id}}"
+              ]
+            },
+            "description": "La propiedad se verifica antes de la búsqueda de pistas, por lo que este 403s a pesar de que la pista ya se eliminó anteriormente."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar pista - Sin autenticación (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{playlist_id}}/tracks/{{track_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{playlist_id}}",
+                "tracks",
+                "{{track_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear lista de reproducción 2 (elemento fijo de género de conflicto) - Éxito (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 201\", function () { pm.response.to.have.status(201); });",
+                  "pm.collectionVariables.set(\"conflict_playlist_id\", pm.response.json().data.playlist.id);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists"
+              ]
+            },
+            "description": "Lista de reproducción n .º2 de 4. Etiquetado deliberadamente con genre_conflict_id para que la carpeta Cleanup pueda probar la protección de eliminación en uso.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rock Essentials\",\n  \"genre\": \"{{genre_conflict_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear lista de reproducción 3 - Éxito (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 201\", function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists"
+              ]
+            },
+            "description": "Lista de reproducción n .º3 de 4.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Chill Study Session\",\n  \"genre\": \"{{genre_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear lista de reproducción 4 - Éxito (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 201\", function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists"
+              ]
+            },
+            "description": "Lista de reproducción n .º4 de 4: ahora se alcanza el límite del plan Plus.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Late Night Vibes\",\n  \"genre\": \"{{genre_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear lista de reproducción 5 - Límite alcanzado (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 403\", function () { pm.response.to.have.status(403); });",
+                  "pm.test(\"Explica el límite del plan\", function () { pm.expect(pm.response.json().message).to.include(\"limited to\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists"
+              ]
+            },
+            "description": "Este es el caso \"Ingreso de 5 documentos en plan plus -> Error en el documento 5 por límite\" del escrito de asignación.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"One Too Many\",\n  \"genre\": \"{{genre_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "04 - Usuarios",
+      "item": [
+        {
+          "name": "Obtener uso - Plan Plus al límite (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"El plan es plus\", function () { pm.expect(pm.response.json().data.plan).to.eql(\"plus\"); });",
+                  "pm.test(\"El recuento utilizado es 4\", function () { pm.expect(pm.response.json().data.used).to.eql(4); });",
+                  "pm.test(\"El límite es 4\", function () { pm.expect(pm.response.json().data.limit).to.eql(4); });",
+                  "pm.test(\"El porcentaje utilizado es 100\", function () { pm.expect(pm.response.json().data.percentageUsed).to.eql(100); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/users/me/usage",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "me",
+                "usage"
+              ]
+            },
+            "description": "user1 ahora posee exactamente 4 listas de reproducción (consulte el final de la carpeta Listas de reproducción), por lo que esto debería decir 100% usado."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener uso - Sin autenticación (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/users/me/usage",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "me",
+                "usage"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizarme - Éxito (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Se ha cambiado el nombre de usuario\", function () {\n  pm.expect(pm.response.json().data.user.username).to.not.eql(pm.collectionVariables.get(\"user1_username\"));\n});",
+                  "pm.collectionVariables.set(\"user1_username\", pm.response.json().data.user.username);"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/users/me",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "me"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"user1updated{{$timestamp}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizarme - Error de validación (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 400:\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/users/me",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "me"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"not-a-valid-email\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizarme: Se tomó el nombre de usuario del conflicto (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"Menciona conflicto\", function () { pm.expect(pm.response.json().message).to.include(\"already in use\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/users/me",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "me"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"{{user2_username}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizarme - Sin autenticación (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/users/me",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "me"
+              ]
+            },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"shouldnotwork\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Plan de actualización - Éxito (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"El plan ahora es premium\", function () { pm.expect(pm.response.json().data.plan).to.eql(\"premium\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/users/me/upgrade-plan",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "me",
+                "upgrade-plan"
+              ]
+            },
+            "description": "Este es el paso \"Cambio de plan al usuario\" del flujo de ejemplo del brief de asignación."
+          },
+          "response": []
+        },
+        {
+          "name": "Plan de actualización - Ya es Premium (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 400:\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/users/me/upgrade-plan",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "me",
+                "upgrade-plan"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Plan de actualización - Sin autenticación (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/users/me/upgrade-plan",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "me",
+                "upgrade-plan"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener uso - Plan Premium (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"Es premium\", function () { pm.expect(pm.response.json().data.plan).to.eql(\"premium\"); });",
+                  "pm.test(\"El límite es nulo (ilimitado)\", function () { pm.expect(pm.response.json().data.limit).to.eql(null); });",
+                  "pm.test(\"El porcentaje utilizado es nulo\", function () { pm.expect(pm.response.json().data.percentageUsed).to.eql(null); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/users/me/usage",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "me",
+                "usage"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener todos los usuarios (administrador) - Éxito (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"La matriz de usuarios está presente\", function () { pm.expect(pm.response.json().data.users).to.exist; });",
+                  "pm.test(\"Los metadatos de paginación están presentes\", function () { pm.expect(pm.response.json().pagination).to.exist; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/users",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener todos los usuarios (administrador) - Sin autenticación (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/users",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener todos los usuarios (administrador) - Prohibido no administrador (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/users",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener usuario por ID (administrador) - Éxito (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"El usuario devuelto coincide con el ID solicitado\", function () {\n  pm.expect(pm.response.json().data.user.id).to.eql(pm.collectionVariables.get(\"user3_id\"));\n});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/users/{{user3_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{user3_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener usuario por ID (administrador) - No encontrado (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 404\", function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/users/507f191e810c19729de860ea",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "507f191e810c19729de860ea"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener usuario por ID (administrador) - Prohibido no administrador (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/users/{{user3_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{user3_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener usuario por ID (administrador) - Sin autenticación (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/users/{{user3_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{user3_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar usuario (administrador) - Correcto (204)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/users/{{user3_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{user3_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar usuario (administrador) - No encontrado (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 404\", function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/users/{{user3_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "{{user3_id}}"
+              ]
+            },
+            "description": "Mismo ID que el anterior, ahora ya eliminado."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar usuario (administrador) - Prohibido no administrador (403)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 403\", function () { pm.response.to.have.status(403); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/users/507f191e810c19729de860ea",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "507f191e810c19729de860ea"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar usuario (administrador) - Sin autenticación (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/users/507f191e810c19729de860ea",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "507f191e810c19729de860ea"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Borrarme (a mí mismo) - Éxito (204)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user2_access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/users/me",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "me"
+              ]
+            },
+            "description": "user2 elimina su propia cuenta. Cascadas para eliminar cualquiera de sus listas de reproducción (user2 no tiene ninguna en este flujo)."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar (yo mismo) - Token no válido después de la eliminación (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });",
+                  "pm.test(\"Explica el token obsoleto\", function () { pm.expect(pm.response.json().message).to.include(\"no longer exists\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{user2_access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/users/me",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "users",
+                "me"
+              ]
+            },
+            "description": "Reutiliza el token ahora obsoleto de user2 para ejercer específicamente la ruta \"el usuario que pertenece a este token ya no existe\"."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "05 - Listas de reproducción (después de la actualización)",
+      "item": [
+        {
+          "name": "Crear 5ª lista de reproducción - Éxito después de la actualización (201)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 201\", function () { pm.response.to.have.status(201); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists"
+              ]
+            },
+            "description": "Este es el paso \"Cambio de plan al usuario -> Agrego documento 5\" del flujo de ejemplo del brief de asignación.",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"One Too Many (Retry)\",\n  \"genre\": \"{{genre_id}}\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar lista de reproducción (principal) - Éxito (204)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{playlist_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{playlist_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener lista de reproducción por ID (eliminada) - No encontrada (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 404\", function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{playlist_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{playlist_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "06 - Pistas (Búsqueda de iTunes)",
+      "item": [
+        {
+          "name": "Pistas de búsqueda - Éxito (200)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 200\", function () { pm.response.to.have.status(200); });",
+                  "pm.test(\"La matriz de pistas está presente\", function () { pm.expect(pm.response.json().data.tracks).to.exist; });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/tracks/search?q=Bohemian Rhapsody",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tracks",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "Bohemian Rhapsody"
+                }
+              ]
+            },
+            "description": "Accede a la API de búsqueda gratuita de iTunes (sin problemas de clave ni límite de velocidad): el requisito de \"recurso de terceros relevante para el dominio\" de la asignación."
+          },
+          "response": []
+        },
+        {
+          "name": "Pistas de búsqueda - Consulta faltante (400)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 400:\", function () { pm.response.to.have.status(400); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/tracks/search",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tracks",
+                "search"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Pistas de búsqueda - Sin autenticación (401)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/tracks/search?q=Bohemian Rhapsody",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "tracks",
+                "search"
+              ],
+              "query": [
+                {
+                  "key": "q",
+                  "value": "Bohemian Rhapsody"
+                }
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "07 - Limpieza y comprobaciones cruzadas de recursos",
+      "item": [
+        {
+          "name": "Eliminar género (todavía en uso) - Conflicto (409)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 409\", function () { pm.response.to.have.status(409); });",
+                  "pm.test(\"Explica que está en uso\", function () { pm.expect(pm.response.json().message).to.include(\"used by\"); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/genres/{{genre_conflict_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "genres",
+                "{{genre_conflict_id}}"
+              ]
+            },
+            "description": "genre_conflict_id sigue siendo referenciado por conflict_playlist_id (creado en la carpeta Playlists)."
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar lista de reproducción de conflictos - Éxito (204)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/playlists/{{conflict_playlist_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "playlists",
+                "{{conflict_playlist_id}}"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar género (ahora sin usar) - Correcto (204)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 204\", function () { pm.response.to.have.status(204); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{admin_access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/genres/{{genre_conflict_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "genres",
+                "{{genre_conflict_id}}"
+              ]
+            },
+            "description": "Ahora que la lista de reproducción de referencia ha desaparecido, la misma eliminación que 409'd anterior debería tener éxito."
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener género por ID (eliminado) - No encontrado (404)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test(\"El código de estado es 404\", function () { pm.response.to.have.status(404); });"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json",
+                "type": "text"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{access_token}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{prod_base_url}}/api/v1/genres/{{genre_conflict_id}}",
+              "host": [
+                "{{prod_base_url}}"
+              ],
+              "path": [
+                "api",
+                "v1",
+                "genres",
+                "{{genre_conflict_id}}"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "prod_base_url",
+      "value": "https://music-playlist-dun.vercel.app/",
+      "type": "string",
+      "description": "URL base de la API desplegada (por especificación de asignación, la documentación por defecto es la URL remota). Para el desarrollo local, cámbielo temporalmente a http://localhost:4000 en la pestaña Variables, luego cámbielo nuevamente antes del envío final."
+    },
+    {
+      "key": "test_password",
+      "value": "Jamaica,123",
+      "type": "string",
+      "description": "Contraseña utilizada para cada cuenta de usuario creada para la prueba."
+    },
+    {
+      "key": "admin_username",
+      "value": "admin",
+      "type": "string",
+      "description": "Debe coincidir con ADMIN_USERNAME en el .env de la API (utilizado por npm run seed)."
+    },
+    {
+      "key": "admin_password",
+      "value": "Jamaica,123",
+      "type": "string",
+      "description": "Debe coincidir con ADMIN_PASSWORD en el .env de la API (utilizado por npm run seed)."
+    },
+    {
+      "key": "access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user1_username",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user2_access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user2_username",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user2_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user3_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "admin_access_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "genre_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "genre_name",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "genre_conflict_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "playlist_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "conflict_playlist_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "track_id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
