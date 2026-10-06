@@ -7,25 +7,6 @@ https://git.labanca.com.uy/labanca/tarjetas/tarjetasfrontend/-/blob/TRJBQM-158_c
 http://redmine.desarrollo.labanca.com.uy/projects/bi/wiki/Software_de_Comportamiento?parent=Wiki
 
 
-## TODO
-- [ ] Deploy to Vercel + MongoDB Atlas, get a public URL, run the full collection against it once for real, and point `prod_base_url` at it before final submission.
-- fix this translated tests:
-Test checking for...	API now says...
-"already registered"	"ya está registrado"
-"Username or email is required"	"usuario o email es obligatorio"
-"Invalid username/email or password"	"Credenciales inválidas"
-"not logged in"	"No se recibió token"
-"permission"	"permisos"
-"already exists"	"ya existe"
-"No image file"	"No se proporcionó"
-"limited to"	"limited to" ✅ (this one still matches — mixed Spanish/English in the message)
-"already in use"	"ya está en uso"
-"no longer exists"	"ya no existe"
-"used by"	"está usado por"
-
-
-*/
-
 
 
 // #region Hitos
