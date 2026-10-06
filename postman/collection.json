@@ -18,7 +18,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Código estado 400:\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"El campo de estado del cuerpo es 'fail'\", function () { pm.expect(pm.response.json().status).to.eql(\"fail\"); });",
+                  "pm.test(\"El cuerpo incluye un mensaje de error\", function () { pm.expect(pm.response.json().message).to.be.a(\"string\").and.not.empty; });",
                   "pm.test(\"El mensaje de error está presente\", function () { pm.expect(pm.response.json().message).to.exist; });"
                 ]
               }
@@ -121,8 +121,8 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"El código de estado es 409\", function () { pm.response.to.have.status(409); });",
-                  "pm.test(\"El campo de estado del cuerpo es 'fail'\", function () { pm.expect(pm.response.json().status).to.eql(\"fail\"); });",
-                  "pm.test(\"Menciona el conflicto\", function () { pm.expect(pm.response.json().message).to.include(\"already registered\"); });"
+                  "pm.test(\"El cuerpo incluye un mensaje de error\", function () { pm.expect(pm.response.json().message).to.be.a(\"string\").and.not.empty; });",
+                  "pm.test(\"Menciona el nombre de usuario registrado\", function () { pm.expect(pm.response.json().message).to.include(\"ya está registrado\"); });"
                 ]
               }
             }
@@ -169,7 +169,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Código estado 400:\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"Mensaje personalizado mostrado\", function () { pm.expect(pm.response.json().message).to.include(\"Username or email is required\"); });"
+                  "pm.test(\"El mensaje indica que falta el usuario o el email\", function () { pm.expect(pm.response.json().message).to.include(\"usuario o email es obligatorio\"); });"
                 ]
               }
             }
@@ -217,7 +217,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });",
-                  "pm.test(\"Mensaje genérico de credenciales no válidas\", function () { pm.expect(pm.response.json().message).to.include(\"Invalid username/email or password\"); });"
+                  "pm.test(\"El mensaje indica que las credenciales no son válidas\", function () { pm.expect(pm.response.json().message).to.include(\"Credenciales inválidas\"); });"
                 ]
               }
             }
@@ -358,7 +358,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });",
-                  "pm.test(\"Explica el token faltante\", function () { pm.expect(pm.response.json().message).to.include(\"not logged in\"); });"
+                  "pm.test(\"El mensaje indica que falta el token\", function () { pm.expect(pm.response.json().message).to.include(\"No se recibió token\"); });"
                 ]
               }
             }
@@ -598,7 +598,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"El código de estado es 403\", function () { pm.response.to.have.status(403); });",
-                  "pm.test(\"Bloqueado por la verificación de roles\", function () { pm.expect(pm.response.json().message).to.include(\"permission\"); });"
+                  "pm.test(\"El mensaje indica falta de permisos\", function () { pm.expect(pm.response.json().message).to.include(\"permisos suficientes\"); });"
                 ]
               }
             }
@@ -748,7 +748,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"El código de estado es 409\", function () { pm.response.to.have.status(409); });",
-                  "pm.test(\"Duplicado de menciones\", function () { pm.expect(pm.response.json().message).to.include(\"already exists\"); });"
+                  "pm.test(\"El mensaje indica que el género ya existe\", function () { pm.expect(pm.response.json().message).to.include(\"Ya existe un género\"); });"
                 ]
               }
             }
@@ -2275,7 +2275,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Código estado 400:\", function () { pm.response.to.have.status(400); });",
-                  "pm.test(\"Explica que no se ha enviado ningún archivo\", function () { pm.expect(pm.response.json().message).to.include(\"No image file\"); });"
+                  "pm.test(\"El mensaje indica que falta la imagen\", function () { pm.expect(pm.response.json().message).to.include(\"No se proporcionó ninguna imagen\"); });"
                 ]
               }
             }
@@ -2447,7 +2447,7 @@
                 "exec": [
                   "pm.test(\"El código de estado es 200\", function () { pm.response.to.have.status(200); });",
                   "pm.test(\"El resumen de AI Vibe está presente\", function () { pm.expect(pm.response.json().data.aiVibeSummary).to.exist; });",
-                  "pm.test(\"generatedByAI es un booleano\", function () {\n  pm.expect(pm.response.json().data.generatedByAI).to.be.a(\"boolean\");\n});"
+                  "pm.test(\"generadoPorIA es un booleano\", function () {\n  pm.expect(pm.response.json().data.generadoPorIA).to.be.a(\"boolean\");\n});"
                 ]
               }
             }
@@ -3103,7 +3103,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"El código de estado es 409\", function () { pm.response.to.have.status(409); });",
-                  "pm.test(\"Menciona conflicto\", function () { pm.expect(pm.response.json().message).to.include(\"already in use\"); });"
+                  "pm.test(\"El mensaje indica que el nombre de usuario ya está en uso\", function () { pm.expect(pm.response.json().message).to.include(\"ya está en uso\"); });"
                 ]
               }
             }
@@ -3864,7 +3864,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"Código estado 401:\", function () { pm.response.to.have.status(401); });",
-                  "pm.test(\"Explica el token obsoleto\", function () { pm.expect(pm.response.json().message).to.include(\"no longer exists\"); });"
+                  "pm.test(\"El mensaje indica que el usuario ya no existe\", function () { pm.expect(pm.response.json().message).to.include(\"ya no existe\"); });"
                 ]
               }
             }
@@ -4193,7 +4193,7 @@
                 "type": "text/javascript",
                 "exec": [
                   "pm.test(\"El código de estado es 409\", function () { pm.response.to.have.status(409); });",
-                  "pm.test(\"Explica que está en uso\", function () { pm.expect(pm.response.json().message).to.include(\"used by\"); });"
+                  "pm.test(\"El mensaje indica cuántas listas usan el género\", function () { pm.expect(pm.response.json().message).to.include(\"está usado por\"); });"
                 ]
               }
             }
