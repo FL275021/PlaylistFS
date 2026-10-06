@@ -57,6 +57,7 @@ Las pruebas automatizadas usan `node:test` y no se conectan a MongoDB Atlas. `np
 ##  Vercel
 La aplicacion es exportada sin llamar al `.listen()`, envuelto en `api/index.js` como una funcion, y `vercel.json` reescribe todas las request.
 Setea las mismas variables de ambiente de `.env` en la configuración del proyecto en Vercel y despues ejecuta `vercel --prod`.
+Configura `MONGO_URI` y `JWT_SECRET` en el entorno **Production** de Vercel. `/health` comprueba que la función HTTP responde, no la conexión con MongoDB; las solicitudes `/api/*` devuelven `503` si no se puede conectar a la base de datos.
 
 ## Postman 
 `postman/music-playlist-api.postman_collection.json` — one coleccion, 7 carpetas (Auth, Genres, Playlists Core, Users, Playlists After Upgrade, Tracks, Cleanup), 95 requests para cada codigo de estado implementado en cada endpoint.

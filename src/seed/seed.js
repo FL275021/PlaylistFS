@@ -11,12 +11,12 @@ const GENEROS_DEFAULT = [
   'Pop', 'Rock', 'Jazz', 'Hip-Hop', 'Electrónica', 'Clásica', 'Reggaetón', 'Cumbia',
 ];
 
-const seed = async () => {
+const seed = async () => {  
   await connectDB();
 
   const adminUsername = process.env.ADMIN_USERNAME || 'admin';
-  const adminEmail = process.env.ADMIN_EMAIL || 'admin@example.com';
-  const adminPassword = process.env.ADMIN_PASSWORD || 'ChangeMe123!';
+  const adminEmail = process.env.ADMIN_EMAIL || 'admin@gmail.com';
+  const adminPassword = process.env.ADMIN_PASSWORD || 'Jamaica,123';
 
   const existeAdmin = await User.findOne({ username: adminUsername });
   if (!existeAdmin) {
@@ -40,7 +40,7 @@ const seed = async () => {
       console.log(`Género creado: ${name}`);
     }
   }
-
+  
   console.log('Seed completado.');
   await mongoose.disconnect();
   process.exit(0);

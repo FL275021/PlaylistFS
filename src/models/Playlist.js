@@ -13,6 +13,9 @@ const trackSchema = new mongoose.Schema(
   { _id: true }
 );
 
+/* 
+*/
+
 trackSchema.set('toJSON', {
   transform: (doc, ret) => {
     ret.id = ret._id;
@@ -45,7 +48,7 @@ const playlistSchema = new mongoose.Schema(
       ref: 'User',
       required: true,
     },
-    // Descripción de ambiente generada por IA - ver services/ai.service.js
+    // Descripción de ambiente generada por IA - ver services/ai.service.js       
     aiVibeSummary: { type: String, default: '' },
     isPublic: { type: Boolean, default: true },
   },
@@ -63,6 +66,10 @@ playlistSchema.set('toJSON', {
     return ret;
   },
 });
-
+/*
+ 
+ 
+ 
+ */ 
 const Playlist = mongoose.model('Playlist', playlistSchema);
 export default Playlist;
