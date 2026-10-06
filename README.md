@@ -53,6 +53,7 @@ Las pruebas automatizadas usan `node:test` y no se conectan a MongoDB Atlas. `np
 - Handler para errores centralizado(`AppError` + `errorHandler`), toma los mensajes Mongoose/JWT y los devuelve como `{ status, message }`
 - OWASP(Open Web Application Security Project) API Top 10: `helmet`, `express-rate-limit` (stricto `/auth`), `express-mongo-sanitize`, hashing, JWT auth, revalidacion del lado del servidor de todo lo mandado por le client.
 - Todas las reglas de negocio(4-playlist cap, Bloquea borrado de Genero En Uso , chequea prpietario) son del lado servidor, independientes del frontend.
+- `sanitize-html` usa una versión compatible con el runtime ESM de Vercel y fija `htmlparser2` a una versión con entrada CommonJS. No eliminar el override sin verificar el arranque en Vercel Node.js 24.
 
 ##  Vercel
 La aplicacion es exportada sin llamar al `.listen()`, envuelto en `api/index.js` como una funcion, y `vercel.json` reescribe todas las request.
@@ -65,7 +66,5 @@ Configura `MONGO_URI` y `JWT_SECRET` en el entorno **Production** de Vercel. `/h
 **Importa el Orden**
 Request guardan las IDs/tokens para futuras requests(`access_token`, `playlist_id`, `genre_id`), y el flujo de limite por plan depende de este orden:
 Crea 4 playlists como `plus` -> la 5ta es rechazada (403) -> sube de plan -> crea la 5ta
-
-
 
 La coleccion fue generada por un script que toma la data en `postman/generator/`
