@@ -13,6 +13,11 @@ export const generarVibePlaylist = async (
   { genreName, trackTitles },
   maximumAttempts = 2
 ) => {
+  if (process.env.NODE_ENV === 'test' && process.env.MOCK_GEMINI === 'fallback') {
+    throw new Error('Gemini is disabled in local Postman test mode.');
+  }
+  if (!iaModel) return vibeDefault(genreName);
+
   const listaCanciones = trackTitles.length
     ? trackTitles.slice(0, 15).join(', ')
     : 'sin canciones por ahora';
