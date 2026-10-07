@@ -14,9 +14,9 @@ const {
 const FAKE_ID = '507f191e810c19729de860ea';
 
 function buildGenresFolder() {
-  return folder('02 - Genres', [
+  return folder('02 - Géneros', [
     req({
-      name: 'Create Genre - Validation Error (400)',
+      name: 'Crear Género - Error de Validación (400)',
       method: 'POST',
       path: ['api', 'v1', 'genres'],
       headers: [bearer('admin_access_token')],
@@ -25,16 +25,16 @@ function buildGenresFolder() {
     }),
 
     req({
-      name: 'Create Genre - Forbidden Non-Admin (403)',
+      name: 'Crear Género - Prohibido para No Admin (403)',
       method: 'POST',
       path: ['api', 'v1', 'genres'],
       headers: [bearer('access_token')],
       body: jsonBody({ name: 'ShouldNotBeCreated' }),
-      tests: [statusIs(403), messageContains('Blocked by role check', 'permission')],
+      tests: [statusIs(403), messageContains('Bloqueado por la verificación de rol', 'permission')],
     }),
 
     req({
-      name: 'Create Genre - No Auth (401)',
+      name: 'Crear Género - Sin Autenticación (401)',
       method: 'POST',
       path: ['api', 'v1', 'genres'],
       body: jsonBody({ name: 'ShouldNotBeCreatedEither' }),
@@ -42,7 +42,7 @@ function buildGenresFolder() {
     }),
 
     req({
-      name: 'Create Genre - Success (201)',
+      name: 'Crear Género - Éxito (201)',
       method: 'POST',
       path: ['api', 'v1', 'genres'],
       headers: [bearer('admin_access_token')],
@@ -50,65 +50,65 @@ function buildGenresFolder() {
       tests: [
         statusIs(201),
         bodyHasStatus('success'),
-        fieldExists('Genre id is present', '.data.genre.id'),
+        fieldExists('El id del género está presente', '.data.genre.id'),
         saveVar('genre_id', '.data.genre.id'),
         saveVar('genre_name', '.data.genre.name'),
       ],
     }),
 
     req({
-      name: 'Create Genre - Duplicate Name (409)',
+      name: 'Crear Género - Nombre Duplicado (409)',
       method: 'POST',
       path: ['api', 'v1', 'genres'],
       headers: [bearer('admin_access_token')],
       body: jsonBody({ name: '{{genre_name}}' }),
-      tests: [statusIs(409), messageContains('Mentions duplicate', 'already exists')],
+      tests: [statusIs(409), messageContains('Menciona el duplicado', 'already exists')],
     }),
 
     req({
-      name: 'Create Second Genre (for delete-guard test later) - Success (201)',
+      name: 'Crear Segundo Género (para la prueba de protección al eliminar) - Éxito (201)',
       method: 'POST',
       path: ['api', 'v1', 'genres'],
       headers: [bearer('admin_access_token')],
       body: jsonBody({ name: 'Rock {{$timestamp}}', description: 'Guitar-driven genre' }),
-      description: 'Kept unused for now - assigned to a playlist in the Playlists folder, then used to prove the delete-in-use guard in the Cleanup folder.',
+      description: 'Se deja sin usar por ahora: se asigna a una playlist en la carpeta de Playlists y luego se usa para probar la protección contra eliminar un género en uso, en la carpeta de Limpieza.',
       tests: [statusIs(201), saveVar('genre_conflict_id', '.data.genre.id')],
     }),
 
     req({
-      name: 'Get All Genres - Success (200)',
+      name: 'Obtener Todos los Géneros - Éxito (200)',
       method: 'GET',
       path: ['api', 'v1', 'genres'],
       headers: [bearer('access_token')],
       tests: [
         statusIs(200),
-        fieldExists('Genres array is present', '.data.genres'),
-        fieldExists('Pagination metadata is present', '.pagination'),
+        fieldExists('El arreglo de géneros está presente', '.data.genres'),
+        fieldExists('Los metadatos de paginación están presentes', '.pagination'),
       ],
     }),
 
     req({
-      name: 'Get All Genres - No Auth (401)',
+      name: 'Obtener Todos los Géneros - Sin Autenticación (401)',
       method: 'GET',
       path: ['api', 'v1', 'genres'],
       tests: [statusIs(401)],
     }),
 
     req({
-      name: 'Get Genre By Id - Success (200)',
+      name: 'Obtener Género por Id - Éxito (200)',
       method: 'GET',
       path: ['api', 'v1', 'genres', '{{genre_id}}'],
       headers: [bearer('access_token')],
       tests: [
         statusIs(200),
-        `pm.test("Returned genre matches the requested id", function () {
+        `pm.test("El género devuelto coincide con el id solicitado", function () {
   pm.expect(pm.response.json().data.genre.id).to.eql(pm.collectionVariables.get("genre_id"));
 });`,
       ],
     }),
 
     req({
-      name: 'Get Genre By Id - Not Found (404)',
+      name: 'Obtener Género por Id - No Encontrado (404)',
       method: 'GET',
       path: ['api', 'v1', 'genres', FAKE_ID],
       headers: [bearer('access_token')],
@@ -116,26 +116,26 @@ function buildGenresFolder() {
     }),
 
     req({
-      name: 'Get Genre By Id - No Auth (401)',
+      name: 'Obtener Género por Id - Sin Autenticación (401)',
       method: 'GET',
       path: ['api', 'v1', 'genres', '{{genre_id}}'],
       tests: [statusIs(401)],
     }),
 
     req({
-      name: 'Update Genre - Success (200)',
+      name: 'Actualizar Género - Éxito (200)',
       method: 'PATCH',
       path: ['api', 'v1', 'genres', '{{genre_id}}'],
       headers: [bearer('admin_access_token')],
       body: jsonBody({ description: 'Updated description via Postman test' }),
       tests: [
         statusIs(200),
-        fieldEquals('Description was updated', '.data.genre.description', 'Updated description via Postman test'),
+        fieldEquals('La descripción fue actualizada', '.data.genre.description', 'Updated description via Postman test'),
       ],
     }),
 
     req({
-      name: 'Update Genre - Not Found (404)',
+      name: 'Actualizar Género - No Encontrado (404)',
       method: 'PATCH',
       path: ['api', 'v1', 'genres', FAKE_ID],
       headers: [bearer('admin_access_token')],
@@ -144,7 +144,7 @@ function buildGenresFolder() {
     }),
 
     req({
-      name: 'Update Genre - Forbidden Non-Admin (403)',
+      name: 'Actualizar Género - Prohibido para No Admin (403)',
       method: 'PATCH',
       path: ['api', 'v1', 'genres', '{{genre_id}}'],
       headers: [bearer('access_token')],
@@ -153,7 +153,7 @@ function buildGenresFolder() {
     }),
 
     req({
-      name: 'Update Genre - No Auth (401)',
+      name: 'Actualizar Género - Sin Autenticación (401)',
       method: 'PATCH',
       path: ['api', 'v1', 'genres', '{{genre_id}}'],
       body: jsonBody({ description: 'hacked' }),
@@ -161,7 +161,7 @@ function buildGenresFolder() {
     }),
 
     req({
-      name: 'Delete Genre - Not Found (404)',
+      name: 'Eliminar Género - No Encontrado (404)',
       method: 'DELETE',
       path: ['api', 'v1', 'genres', FAKE_ID],
       headers: [bearer('admin_access_token')],
@@ -169,16 +169,16 @@ function buildGenresFolder() {
     }),
 
     req({
-      name: 'Delete Genre - Forbidden Non-Admin (403)',
+      name: 'Eliminar Género - Prohibido para No Admin (403)',
       method: 'DELETE',
       path: ['api', 'v1', 'genres', '{{genre_id}}'],
       headers: [bearer('access_token')],
-      description: 'Blocked by the role check before ownership/usage is even considered, so genre_id survives for the Playlists folder.',
+      description: 'Bloqueado por la verificación de rol antes de considerar siquiera la propiedad o el uso, por lo que genre_id sobrevive para la carpeta de Playlists.',
       tests: [statusIs(403)],
     }),
 
     req({
-      name: 'Delete Genre - No Auth (401)',
+      name: 'Eliminar Género - Sin Autenticación (401)',
       method: 'DELETE',
       path: ['api', 'v1', 'genres', '{{genre_id}}'],
       tests: [statusIs(401)],

@@ -12,22 +12,22 @@ const {
 } = require('./helpers');
 
 function buildAuthFolder() {
-  return folder('01 - Auth', [
+  return folder('01 - Autenticación', [
     req({
-      name: 'Register - Validation Error (400)',
+      name: 'Registro - Error de Validación (400)',
       method: 'POST',
       path: ['api', 'v1', 'auth', 'register'],
       body: jsonBody({ username: 'ab', email: 'not-an-email', password: 'short' }),
-      description: 'Username too short, invalid email, password under 8 chars - all three should be reported.',
+      description: 'Nombre de usuario demasiado corto, email inválido y contraseña de menos de 8 caracteres: los tres errores deben reportarse.',
       tests: [
         statusIs(400),
         bodyHasStatus('fail'),
-        fieldExists('Error message is present', '.message'),
+        fieldExists('El mensaje de error está presente', '.message'),
       ],
     }),
 
     req({
-      name: 'Register - Success (201)',
+      name: 'Registro - Éxito (201)',
       method: 'POST',
       path: ['api', 'v1', 'auth', 'register'],
       body: jsonBody({
@@ -36,21 +36,21 @@ function buildAuthFolder() {
         password: '{{test_password}}',
       }),
       description:
-        'Creates the primary test user. Saves the token immediately (auto-login) and the resolved username for reuse in later requests.',
+        'Crea el usuario de prueba principal. Guarda el token de inmediato (inicio de sesión automático) y el nombre de usuario resultante para reutilizarlo en las solicitudes posteriores.',
       tests: [
         statusIs(201),
         bodyHasStatus('success'),
-        fieldExists('Token is present', '.token'),
-        fieldExists('User id is present', '.data.user.id'),
-        fieldEquals('Role defaults to user', '.data.user.role', 'user'),
-        fieldEquals('Plan defaults to plus', '.data.user.plan', 'plus'),
+        fieldExists('El token está presente', '.token'),
+        fieldExists('El id del usuario está presente', '.data.user.id'),
+        fieldEquals('El rol por defecto es user', '.data.user.role', 'user'),
+        fieldEquals('El plan por defecto es plus', '.data.user.plan', 'plus'),
         saveVar('access_token', '.token'),
         saveVar('user1_username', '.data.user.username'),
       ],
     }),
 
     req({
-      name: 'Register - Duplicate Username (409)',
+      name: 'Registro - Nombre de Usuario Duplicado (409)',
       method: 'POST',
       path: ['api', 'v1', 'auth', 'register'],
       body: jsonBody({
@@ -58,36 +58,36 @@ function buildAuthFolder() {
         email: 'different{{$timestamp}}@example.com',
         password: '{{test_password}}',
       }),
-      tests: [statusIs(409), bodyHasStatus('fail'), messageContains('Mentions the conflict', 'already registered')],
+      tests: [statusIs(409), bodyHasStatus('fail'), messageContains('Menciona el conflicto', 'already registered')],
     }),
 
     req({
-      name: 'Login - Validation Error (400)',
+      name: 'Inicio de Sesión - Error de Validación (400)',
       method: 'POST',
       path: ['api', 'v1', 'auth', 'login'],
       body: jsonBody({ password: '{{test_password}}' }),
-      description: 'Omits "identifier" entirely to trigger the custom required-field message.',
-      tests: [statusIs(400), messageContains('Custom message shown', 'Username or email is required')],
+      description: 'Omite por completo "identifier" para provocar el mensaje personalizado de campo obligatorio.',
+      tests: [statusIs(400), messageContains('Se muestra el mensaje personalizado', 'Username or email is required')],
     }),
 
     req({
-      name: 'Login - Invalid Credentials (401)',
+      name: 'Inicio de Sesión - Credenciales Inválidas (401)',
       method: 'POST',
       path: ['api', 'v1', 'auth', 'login'],
       body: jsonBody({ identifier: '{{user1_username}}', password: 'WrongPassword999!' }),
-      tests: [statusIs(401), messageContains('Generic invalid-credentials message', 'Invalid username/email or password')],
+      tests: [statusIs(401), messageContains('Mensaje genérico de credenciales inválidas', 'Invalid username/email or password')],
     }),
 
     req({
-      name: 'Login - Success (200)',
+      name: 'Inicio de Sesión - Éxito (200)',
       method: 'POST',
       path: ['api', 'v1', 'auth', 'login'],
       body: jsonBody({ identifier: '{{user1_username}}', password: '{{test_password}}' }),
       tests: [
         statusIs(200),
         bodyHasStatus('success'),
-        fieldExists('Token is present', '.token'),
-        `pm.test("Username matches the registered user", function () {
+        fieldExists('El token está presente', '.token'),
+        `pm.test("El nombre de usuario coincide con el usuario registrado", function () {
   pm.expect(pm.response.json().data.user.username).to.eql(pm.collectionVariables.get("user1_username"));
 });`,
         saveVar('access_token', '.token'),
@@ -95,28 +95,28 @@ function buildAuthFolder() {
     }),
 
     req({
-      name: 'Get Me - Success (200)',
+      name: 'Obtener Mi Perfil - Éxito (200)',
       method: 'GET',
       path: ['api', 'v1', 'auth', 'me'],
       headers: [bearer('access_token')],
       tests: [
         statusIs(200),
-        `pm.test("Returns the logged-in user's own profile", function () {
+        `pm.test("Devuelve el perfil propio del usuario autenticado", function () {
   pm.expect(pm.response.json().data.user.username).to.eql(pm.collectionVariables.get("user1_username"));
 });`,
-        fieldEquals('Plan is plus (not yet upgraded)', '.data.user.plan', 'plus'),
+        fieldEquals('El plan es plus (aún sin mejorar)', '.data.user.plan', 'plus'),
       ],
     }),
 
     req({
-      name: 'Get Me - No Auth (401)',
+      name: 'Obtener Mi Perfil - Sin Autenticación (401)',
       method: 'GET',
       path: ['api', 'v1', 'auth', 'me'],
-      tests: [statusIs(401), messageContains('Explains missing token', 'not logged in')],
+      tests: [statusIs(401), messageContains('Explica que falta el token', 'not logged in')],
     }),
 
     req({
-      name: 'Register - Second User (for ownership tests) - Success (201)',
+      name: 'Registro - Segundo Usuario (para pruebas de propiedad) - Éxito (201)',
       method: 'POST',
       path: ['api', 'v1', 'auth', 'register'],
       body: jsonBody({
@@ -124,7 +124,7 @@ function buildAuthFolder() {
         email: 'user2{{$timestamp}}@example.com',
         password: '{{test_password}}',
       }),
-      description: 'A second account used later to prove ownership checks (403) on another user\'s playlists.',
+      description: 'Una segunda cuenta que se usa más adelante para probar las verificaciones de propiedad (403) sobre las playlists de otro usuario.',
       tests: [
         statusIs(201),
         saveVar('user2_access_token', '.token'),
@@ -134,7 +134,7 @@ function buildAuthFolder() {
     }),
 
     req({
-      name: 'Register - Third User (admin test target) - Success (201)',
+      name: 'Registro - Tercer Usuario (objetivo de pruebas de admin) - Éxito (201)',
       method: 'POST',
       path: ['api', 'v1', 'auth', 'register'],
       body: jsonBody({
@@ -142,20 +142,20 @@ function buildAuthFolder() {
         email: 'user3{{$timestamp}}@example.com',
         password: '{{test_password}}',
       }),
-      description: 'A throwaway account used purely as the target of the admin GET/DELETE-by-id tests.',
+      description: 'Una cuenta desechable usada únicamente como objetivo de las pruebas de admin para obtener/eliminar por id.',
       tests: [statusIs(201), saveVar('user3_id', '.data.user.id')],
     }),
 
     req({
-      name: 'Login as Admin - Success (200)',
+      name: 'Inicio de Sesión como Admin - Éxito (200)',
       method: 'POST',
       path: ['api', 'v1', 'auth', 'login'],
       body: jsonBody({ identifier: '{{admin_username}}', password: '{{admin_password}}' }),
       description:
-        'Requires `npm run seed` to have been run against the database this collection points at, and that admin_username/admin_password match your .env ADMIN_USERNAME/ADMIN_PASSWORD.',
+        'Requiere haber ejecutado `npm run seed` contra la base de datos a la que apunta esta colección, y que admin_username/admin_password coincidan con ADMIN_USERNAME/ADMIN_PASSWORD de tu .env.',
       tests: [
         statusIs(200),
-        fieldEquals('Role is admin', '.data.user.role', 'admin'),
+        fieldEquals('El rol es admin', '.data.user.role', 'admin'),
         saveVar('admin_access_token', '.token'),
       ],
     }),

@@ -15,9 +15,9 @@ const {
 const FAKE_ID = '507f191e810c19729de860ea';
 
 function buildPlaylistsCoreFolder() {
-  return folder('03 - Playlists (Core)', [
+  return folder('03 - Playlists (Núcleo)', [
     req({
-      name: 'Create Playlist - Validation Error (400)',
+      name: 'Crear Playlist - Error de Validación (400)',
       method: 'POST',
       path: ['api', 'v1', 'playlists'],
       headers: [bearer('access_token')],
@@ -26,7 +26,7 @@ function buildPlaylistsCoreFolder() {
     }),
 
     req({
-      name: 'Create Playlist - Genre Not Found (404)',
+      name: 'Crear Playlist - Género No Encontrado (404)',
       method: 'POST',
       path: ['api', 'v1', 'playlists'],
       headers: [bearer('access_token')],
@@ -35,7 +35,7 @@ function buildPlaylistsCoreFolder() {
     }),
 
     req({
-      name: 'Create Playlist - No Auth (401)',
+      name: 'Crear Playlist - Sin Autenticación (401)',
       method: 'POST',
       path: ['api', 'v1', 'playlists'],
       body: jsonBody({ name: 'Road Trip Mix', genre: FAKE_ID }),
@@ -43,30 +43,30 @@ function buildPlaylistsCoreFolder() {
     }),
 
     req({
-      name: 'Create Playlist - Success (201)',
+      name: 'Crear Playlist - Éxito (201)',
       method: 'POST',
       path: ['api', 'v1', 'playlists'],
       headers: [bearer('access_token')],
       body: jsonBody({ name: 'Road Trip Mix', description: 'Songs for a long drive', genre: '{{genre_id}}' }),
-      description: 'Playlist #1 for this plus-plan user (1 of 4 allowed).',
+      description: 'Playlist #1 de este usuario con plan plus (1 de 4 permitidas).',
       tests: [
         statusIs(201),
         bodyHasStatus('success'),
-        fieldExists('Playlist id is present', '.data.playlist.id'),
-        fieldEquals('isPublic defaults to true', '.data.playlist.isPublic', true),
+        fieldExists('El id de la playlist está presente', '.data.playlist.id'),
+        fieldEquals('isPublic es true por defecto', '.data.playlist.isPublic', true),
         saveVar('playlist_id', '.data.playlist.id'),
       ],
     }),
 
     req({
-      name: 'Get All Playlists - Success (200)',
+      name: 'Obtener Todas las Playlists - Éxito (200)',
       method: 'GET',
       path: ['api', 'v1', 'playlists'],
       headers: [bearer('access_token')],
       tests: [
         statusIs(200),
-        fieldExists('Pagination metadata is present', '.pagination'),
-        `pm.test("List includes the created playlist", function () {
+        fieldExists('Los metadatos de paginación están presentes', '.pagination'),
+        `pm.test("La lista incluye la playlist creada", function () {
   const ids = pm.response.json().data.playlists.map((p) => p.id);
   pm.expect(ids).to.include(pm.collectionVariables.get("playlist_id"));
 });`,
@@ -74,21 +74,21 @@ function buildPlaylistsCoreFolder() {
     }),
 
     req({
-      name: 'Get All Playlists - No Auth (401)',
+      name: 'Obtener Todas las Playlists - Sin Autenticación (401)',
       method: 'GET',
       path: ['api', 'v1', 'playlists'],
       tests: [statusIs(401)],
     }),
 
     req({
-      name: 'Get All Playlists - Filtered By Genre - Success (200)',
+      name: 'Obtener Todas las Playlists - Filtradas por Género - Éxito (200)',
       method: 'GET',
       path: ['api', 'v1', 'playlists'],
       query: [{ key: 'genre', value: '{{genre_id}}' }],
       headers: [bearer('access_token')],
       tests: [
         statusIs(200),
-        `pm.test("Every result matches the requested genre", function () {
+        `pm.test("Todos los resultados coinciden con el género solicitado", function () {
   const genreId = pm.collectionVariables.get("genre_id");
   const playlists = pm.response.json().data.playlists;
   playlists.forEach((p) => pm.expect(p.genre.id).to.eql(genreId));
@@ -97,15 +97,15 @@ function buildPlaylistsCoreFolder() {
     }),
 
     req({
-      name: 'Get Playlist By Id - Success (200)',
+      name: 'Obtener Playlist por Id - Éxito (200)',
       method: 'GET',
       path: ['api', 'v1', 'playlists', '{{playlist_id}}'],
       headers: [bearer('access_token')],
-      tests: [statusIs(200), fieldEquals('Name matches what was created', '.data.playlist.name', 'Road Trip Mix')],
+      tests: [statusIs(200), fieldEquals('El nombre coincide con el creado', '.data.playlist.name', 'Road Trip Mix')],
     }),
 
     req({
-      name: 'Get Playlist By Id - Not Found (404)',
+      name: 'Obtener Playlist por Id - No Encontrada (404)',
       method: 'GET',
       path: ['api', 'v1', 'playlists', FAKE_ID],
       headers: [bearer('access_token')],
@@ -113,32 +113,32 @@ function buildPlaylistsCoreFolder() {
     }),
 
     req({
-      name: 'Get Playlist By Id - Forbidden Not Owner (403)',
+      name: 'Obtener Playlist por Id - Prohibido, No es el Propietario (403)',
       method: 'GET',
       path: ['api', 'v1', 'playlists', '{{playlist_id}}'],
       headers: [bearer('user2_access_token')],
-      description: 'user2 trying to read a playlist owned by user1.',
+      description: 'user2 intenta leer una playlist que pertenece a user1.',
       tests: [statusIs(403)],
     }),
 
     req({
-      name: 'Get Playlist By Id - No Auth (401)',
+      name: 'Obtener Playlist por Id - Sin Autenticación (401)',
       method: 'GET',
       path: ['api', 'v1', 'playlists', '{{playlist_id}}'],
       tests: [statusIs(401)],
     }),
 
     req({
-      name: 'Update Playlist - Success (200)',
+      name: 'Actualizar Playlist - Éxito (200)',
       method: 'PATCH',
       path: ['api', 'v1', 'playlists', '{{playlist_id}}'],
       headers: [bearer('access_token')],
       body: jsonBody({ name: 'Road Trip Mix (Updated)', description: 'Updated via Postman' }),
-      tests: [statusIs(200), fieldEquals('Name was updated', '.data.playlist.name', 'Road Trip Mix (Updated)')],
+      tests: [statusIs(200), fieldEquals('El nombre fue actualizado', '.data.playlist.name', 'Road Trip Mix (Updated)')],
     }),
 
     req({
-      name: 'Update Playlist - Validation Error (400)',
+      name: 'Actualizar Playlist - Error de Validación (400)',
       method: 'PATCH',
       path: ['api', 'v1', 'playlists', '{{playlist_id}}'],
       headers: [bearer('access_token')],
@@ -147,7 +147,7 @@ function buildPlaylistsCoreFolder() {
     }),
 
     req({
-      name: 'Update Playlist - Not Owner (403)',
+      name: 'Actualizar Playlist - No es el Propietario (403)',
       method: 'PATCH',
       path: ['api', 'v1', 'playlists', '{{playlist_id}}'],
       headers: [bearer('user2_access_token')],
@@ -156,7 +156,7 @@ function buildPlaylistsCoreFolder() {
     }),
 
     req({
-      name: 'Update Playlist - No Auth (401)',
+      name: 'Actualizar Playlist - Sin Autenticación (401)',
       method: 'PATCH',
       path: ['api', 'v1', 'playlists', '{{playlist_id}}'],
       body: jsonBody({ name: 'Hijacked' }),
@@ -164,7 +164,7 @@ function buildPlaylistsCoreFolder() {
     }),
 
     req({
-      name: 'Add Track - Success (201)',
+      name: 'Agregar Canción - Éxito (201)',
       method: 'POST',
       path: ['api', 'v1', 'playlists', '{{playlist_id}}', 'tracks'],
       headers: [bearer('access_token')],
@@ -173,7 +173,7 @@ function buildPlaylistsCoreFolder() {
         statusIs(201),
         `const tracks = pm.response.json().data.playlist.tracks;
 const last = tracks[tracks.length - 1];
-pm.test("Track was appended with the right title", function () {
+pm.test("La canción se agregó al final con el título correcto", function () {
   pm.expect(last.title).to.eql("Highway to Hell");
 });
 pm.collectionVariables.set("track_id", last.id);`,
@@ -181,7 +181,7 @@ pm.collectionVariables.set("track_id", last.id);`,
     }),
 
     req({
-      name: 'Add Track - Validation Error (400)',
+      name: 'Agregar Canción - Error de Validación (400)',
       method: 'POST',
       path: ['api', 'v1', 'playlists', '{{playlist_id}}', 'tracks'],
       headers: [bearer('access_token')],
@@ -190,7 +190,7 @@ pm.collectionVariables.set("track_id", last.id);`,
     }),
 
     req({
-      name: 'Add Track - Not Owner (403)',
+      name: 'Agregar Canción - No es el Propietario (403)',
       method: 'POST',
       path: ['api', 'v1', 'playlists', '{{playlist_id}}', 'tracks'],
       headers: [bearer('user2_access_token')],
@@ -199,7 +199,7 @@ pm.collectionVariables.set("track_id", last.id);`,
     }),
 
     req({
-      name: 'Add Track - No Auth (401)',
+      name: 'Agregar Canción - Sin Autenticación (401)',
       method: 'POST',
       path: ['api', 'v1', 'playlists', '{{playlist_id}}', 'tracks'],
       body: jsonBody({ title: 'Intruder', artist: 'Nobody' }),
@@ -207,16 +207,16 @@ pm.collectionVariables.set("track_id", last.id);`,
     }),
 
     req({
-      name: 'Upload Cover Image - No File (400)',
+      name: 'Subir Imagen de Portada - Sin Archivo (400)',
       method: 'POST',
       path: ['api', 'v1', 'playlists', '{{playlist_id}}', 'cover-image'],
       headers: [bearer('access_token')],
       body: formDataBody([]),
-      tests: [statusIs(400), messageContains('Explains no file was sent', 'No image file')],
+      tests: [statusIs(400), messageContains('Explica que no se envió ningún archivo', 'No image file')],
     }),
 
     req({
-      name: 'Upload Cover Image - Not Owner (403)',
+      name: 'Subir Imagen de Portada - No es el Propietario (403)',
       method: 'POST',
       path: ['api', 'v1', 'playlists', '{{playlist_id}}', 'cover-image'],
       headers: [bearer('user2_access_token')],
@@ -225,7 +225,7 @@ pm.collectionVariables.set("track_id", last.id);`,
     }),
 
     req({
-      name: 'Upload Cover Image - No Auth (401)',
+      name: 'Subir Imagen de Portada - Sin Autenticación (401)',
       method: 'POST',
       path: ['api', 'v1', 'playlists', '{{playlist_id}}', 'cover-image'],
       body: formDataBody([]),
@@ -233,37 +233,37 @@ pm.collectionVariables.set("track_id", last.id);`,
     }),
 
     req({
-      name: 'Upload Cover Image - Success (200) [MANUAL: attach an image file]',
+      name: 'Subir Imagen de Portada - Éxito (200) [MANUAL: adjuntar un archivo de imagen]',
       method: 'POST',
       path: ['api', 'v1', 'playlists', '{{playlist_id}}', 'cover-image'],
       headers: [bearer('access_token')],
       body: formDataBody([{ key: 'image', type: 'file', src: [] }]),
       description:
-        'File uploads cannot be embedded in an exported Postman collection. Before running this one request manually, click the "image" field and select any local image file, then Send. Requires valid Cloudinary credentials in the API\'s .env.',
+        'Los archivos no pueden incrustarse en una colección de Postman exportada. Antes de ejecutar manualmente esta solicitud, haz clic en el campo "image", selecciona cualquier imagen local y luego presiona Send. Requiere credenciales válidas de Cloudinary en el .env de la API.',
       tests: [
         statusIs(200),
-        fieldExists('Cover image URL was set', '.data.playlist.coverImageUrl'),
+        fieldExists('Se estableció la URL de la imagen de portada', '.data.playlist.coverImageUrl'),
       ],
     }),
 
     req({
-      name: 'Generate Vibe - Success (200)',
+      name: 'Generar Vibe - Éxito (200)',
       method: 'POST',
       path: ['api', 'v1', 'playlists', '{{playlist_id}}', 'generate-vibe'],
       headers: [bearer('access_token')],
       description:
-        'Works even without an ANTHROPIC_API_KEY configured - falls back to a default description, so this should always return 200.',
+        'Funciona incluso sin una ANTHROPIC_API_KEY configurada: recurre a una descripción por defecto, por lo que siempre debería devolver 200.',
       tests: [
         statusIs(200),
-        fieldExists('AI vibe summary is present', '.data.aiVibeSummary'),
-        `pm.test("generatedByAI is a boolean", function () {
+        fieldExists('El resumen del vibe generado por IA está presente', '.data.aiVibeSummary'),
+        `pm.test("generatedByAI es un booleano", function () {
   pm.expect(pm.response.json().data.generatedByAI).to.be.a("boolean");
 });`,
       ],
     }),
 
     req({
-      name: 'Generate Vibe - Not Owner (403)',
+      name: 'Generar Vibe - No es el Propietario (403)',
       method: 'POST',
       path: ['api', 'v1', 'playlists', '{{playlist_id}}', 'generate-vibe'],
       headers: [bearer('user2_access_token')],
@@ -271,20 +271,20 @@ pm.collectionVariables.set("track_id", last.id);`,
     }),
 
     req({
-      name: 'Generate Vibe - No Auth (401)',
+      name: 'Generar Vibe - Sin Autenticación (401)',
       method: 'POST',
       path: ['api', 'v1', 'playlists', '{{playlist_id}}', 'generate-vibe'],
       tests: [statusIs(401)],
     }),
 
     req({
-      name: 'Remove Track - Success (200)',
+      name: 'Eliminar Canción - Éxito (200)',
       method: 'DELETE',
       path: ['api', 'v1', 'playlists', '{{playlist_id}}', 'tracks', '{{track_id}}'],
       headers: [bearer('access_token')],
       tests: [
         statusIs(200),
-        `pm.test("Track no longer appears in the playlist", function () {
+        `pm.test("La canción ya no aparece en la playlist", function () {
   const removedId = pm.collectionVariables.get("track_id");
   const ids = pm.response.json().data.playlist.tracks.map((t) => t.id);
   pm.expect(ids).to.not.include(removedId);
@@ -293,59 +293,59 @@ pm.collectionVariables.set("track_id", last.id);`,
     }),
 
     req({
-      name: 'Remove Track - Not Owner (403)',
+      name: 'Eliminar Canción - No es el Propietario (403)',
       method: 'DELETE',
       path: ['api', 'v1', 'playlists', '{{playlist_id}}', 'tracks', '{{track_id}}'],
       headers: [bearer('user2_access_token')],
-      description: 'Ownership is checked before track lookup, so this 403s even though the track was already removed above.',
+      description: 'La propiedad se verifica antes de buscar la canción, por lo que devuelve 403 aunque la canción ya haya sido eliminada arriba.',
       tests: [statusIs(403)],
     }),
 
     req({
-      name: 'Remove Track - No Auth (401)',
+      name: 'Eliminar Canción - Sin Autenticación (401)',
       method: 'DELETE',
       path: ['api', 'v1', 'playlists', '{{playlist_id}}', 'tracks', '{{track_id}}'],
       tests: [statusIs(401)],
     }),
 
     req({
-      name: 'Create Playlist 2 (conflict-genre fixture) - Success (201)',
+      name: 'Crear Playlist 2 (fixture del género en conflicto) - Éxito (201)',
       method: 'POST',
       path: ['api', 'v1', 'playlists'],
       headers: [bearer('access_token')],
       body: jsonBody({ name: 'Rock Essentials', genre: '{{genre_conflict_id}}' }),
-      description: 'Playlist #2 of 4. Deliberately tagged with genre_conflict_id so the Cleanup folder can prove the delete-in-use guard.',
+      description: 'Playlist #2 de 4. Etiquetada deliberadamente con genre_conflict_id para que la carpeta de Limpieza pueda probar la protección contra eliminar un género en uso.',
       tests: [statusIs(201), saveVar('conflict_playlist_id', '.data.playlist.id')],
     }),
 
     req({
-      name: 'Create Playlist 3 - Success (201)',
+      name: 'Crear Playlist 3 - Éxito (201)',
       method: 'POST',
       path: ['api', 'v1', 'playlists'],
       headers: [bearer('access_token')],
       body: jsonBody({ name: 'Chill Study Session', genre: '{{genre_id}}' }),
-      description: 'Playlist #3 of 4.',
+      description: 'Playlist #3 de 4.',
       tests: [statusIs(201)],
     }),
 
     req({
-      name: 'Create Playlist 4 - Success (201)',
+      name: 'Crear Playlist 4 - Éxito (201)',
       method: 'POST',
       path: ['api', 'v1', 'playlists'],
       headers: [bearer('access_token')],
       body: jsonBody({ name: 'Late Night Vibes', genre: '{{genre_id}}' }),
-      description: 'Playlist #4 of 4 - the plus-plan cap is now reached.',
+      description: 'Playlist #4 de 4: ya se alcanzó el tope del plan plus.',
       tests: [statusIs(201)],
     }),
 
     req({
-      name: 'Create Playlist 5 - Limit Reached (403)',
+      name: 'Crear Playlist 5 - Límite Alcanzado (403)',
       method: 'POST',
       path: ['api', 'v1', 'playlists'],
       headers: [bearer('access_token')],
       body: jsonBody({ name: 'One Too Many', genre: '{{genre_id}}' }),
-      description: 'This is the "Ingreso de 5 documentos en plan plus -> Error en el documento 5 por límite" case from the assignment brief.',
-      tests: [statusIs(403), messageContains('Explains the plan limit', 'limited to')],
+      description: 'Este es el caso "Ingreso de 5 documentos en plan plus -> Error en el documento 5 por límite" del enunciado de la tarea.',
+      tests: [statusIs(403), messageContains('Explica el límite del plan', 'limited to')],
     }),
   ]);
 }

@@ -13,19 +13,10 @@ const buildCleanupFolder = require('./folder-cleanup');
 const collection = {
   info: {
     _postman_id: uuid(),
-    name: 'Music Playlist API - Obligatorio 1',
+    name: 'Music Playlist',
     description:
-      'Full request + test suite for the Music Playlist API (ORT, Desarrollo Full Stack integrado con IA - Obligatorio 1).\n\n' +
-      'Run order matters: folders are numbered and must be run top-to-bottom via Collection Runner (or "Run collection") ' +
-      'for the collection variables each request depends on to be populated correctly - this mirrors the exact ' +
-      'flows described in the assignment brief (invalid registration -> success -> duplicate; 4 playlists on the plus ' +
-      'plan -> limit error -> plan upgrade -> 5th playlist succeeds).\n\n' +
-      'Before running:\n' +
-      '1. Run `npm run seed` against the database prod_base_url points at, so the pre-seeded admin account exists.\n' +
-      '2. Set the `prod_base_url` variable (Collection > Variables tab) to your API\'s base URL.\n' +
-      '3. Make sure `admin_username` / `admin_password` match your .env ADMIN_USERNAME / ADMIN_PASSWORD.\n' +
-      '4. The one request marked [MANUAL] (cover image upload success case) needs a file attached by hand in the Postman UI - ' +
-      'Postman collections cannot embed real file bytes portably, so this one can\'t run unattended.',
+      ' La única solicitud marcada como [MANUAL] (caso de éxito de la subida de imagen de portada) necesita que se adjunte un archivo a mano en la interfaz de Postman - ' +
+      'las colecciones de Postman no pueden incrustar los bytes reales de un archivo de forma portable, por lo que esta no puede ejecutarse de forma desatendida.',
     schema: 'https://schema.getpostman.com/json/collection/v2.1.0/collection.json',
   },
   item: [
@@ -43,26 +34,26 @@ const collection = {
       value: 'https://your-app-name.vercel.app',
       type: 'string',
       description:
-        'Base URL of the deployed API (per assignment spec, documentation defaults to the remote URL). ' +
-        'For local development, temporarily change this to http://localhost:4000 in the Variables tab, then change it back before final submission.',
+        'URL base de la API desplegada (según el enunciado, la documentación usa por defecto la URL remota). ' +
+        'Para desarrollo local, cámbiala temporalmente a http://localhost:4000 en la pestaña Variables y luego vuelve a ponerla antes de la entrega final.',
     },
     {
       key: 'test_password',
       value: 'Password123!',
       type: 'string',
-      description: 'Password used for every test-created user account.',
+      description: 'Contraseña usada para todas las cuentas de usuario creadas en las pruebas.',
     },
     {
       key: 'admin_username',
       value: 'admin',
       type: 'string',
-      description: 'Must match ADMIN_USERNAME in the API\'s .env (used by npm run seed).',
+      description: 'Debe coincidir con ADMIN_USERNAME en el .env de la API (usado por npm run seed).',
     },
     {
       key: 'admin_password',
-      value: 'ChangeMe123!',
+      value: 'Jamaica,123',
       type: 'string',
-      description: 'Must match ADMIN_PASSWORD in the API\'s .env (used by npm run seed).',
+      description: 'Debe coincidir con ADMIN_PASSWORD en el .env de la API (usado por npm run seed).',
     },
     { key: 'access_token', value: '', type: 'string' },
     { key: 'user1_username', value: '', type: 'string' },

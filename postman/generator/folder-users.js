@@ -13,38 +13,38 @@ const {
 const FAKE_ID = '507f191e810c19729de860ea';
 
 function buildUsersFolder() {
-  return folder('04 - Users', [
+  return folder('04 - Usuarios', [
     req({
-      name: 'Get Usage - Plus Plan At Limit (200)',
+      name: 'Obtener Uso - Plan Plus en el Límite (200)',
       method: 'GET',
       path: ['api', 'v1', 'users', 'me', 'usage'],
       headers: [bearer('access_token')],
-      description: 'user1 now owns exactly 4 playlists (see the end of the Playlists folder), so this should read 100% used.',
+      description: 'user1 ahora posee exactamente 4 playlists (ver el final de la carpeta de Playlists), por lo que debería mostrar 100% de uso.',
       tests: [
         statusIs(200),
-        fieldEquals('Plan is plus', '.data.plan', 'plus'),
-        fieldEquals('Used count is 4', '.data.used', 4),
-        fieldEquals('Limit is 4', '.data.limit', 4),
-        fieldEquals('Percentage used is 100', '.data.percentageUsed', 100),
+        fieldEquals('El plan es plus', '.data.plan', 'plus'),
+        fieldEquals('La cantidad usada es 4', '.data.used', 4),
+        fieldEquals('El límite es 4', '.data.limit', 4),
+        fieldEquals('El porcentaje usado es 100', '.data.percentageUsed', 100),
       ],
     }),
 
     req({
-      name: 'Get Usage - No Auth (401)',
+      name: 'Obtener Uso - Sin Autenticación (401)',
       method: 'GET',
       path: ['api', 'v1', 'users', 'me', 'usage'],
       tests: [statusIs(401)],
     }),
 
     req({
-      name: 'Update Me - Success (200)',
+      name: 'Actualizar Mi Perfil - Éxito (200)',
       method: 'PATCH',
       path: ['api', 'v1', 'users', 'me'],
       headers: [bearer('access_token')],
       body: jsonBody({ username: 'user1updated{{$timestamp}}' }),
       tests: [
         statusIs(200),
-        `pm.test("Username was changed", function () {
+        `pm.test("El nombre de usuario fue modificado", function () {
   pm.expect(pm.response.json().data.user.username).to.not.eql(pm.collectionVariables.get("user1_username"));
 });`,
         saveVar('user1_username', '.data.user.username'),
@@ -52,7 +52,7 @@ function buildUsersFolder() {
     }),
 
     req({
-      name: 'Update Me - Validation Error (400)',
+      name: 'Actualizar Mi Perfil - Error de Validación (400)',
       method: 'PATCH',
       path: ['api', 'v1', 'users', 'me'],
       headers: [bearer('access_token')],
@@ -61,16 +61,16 @@ function buildUsersFolder() {
     }),
 
     req({
-      name: 'Update Me - Conflict Username Taken (409)',
+      name: 'Actualizar Mi Perfil - Conflicto, Nombre de Usuario en Uso (409)',
       method: 'PATCH',
       path: ['api', 'v1', 'users', 'me'],
       headers: [bearer('access_token')],
       body: jsonBody({ username: '{{user2_username}}' }),
-      tests: [statusIs(409), messageContains('Mentions conflict', 'already in use')],
+      tests: [statusIs(409), messageContains('Menciona el conflicto', 'already in use')],
     }),
 
     req({
-      name: 'Update Me - No Auth (401)',
+      name: 'Actualizar Mi Perfil - Sin Autenticación (401)',
       method: 'PATCH',
       path: ['api', 'v1', 'users', 'me'],
       body: jsonBody({ username: 'shouldnotwork' }),
@@ -78,16 +78,16 @@ function buildUsersFolder() {
     }),
 
     req({
-      name: 'Upgrade Plan - Success (200)',
+      name: 'Mejorar Plan - Éxito (200)',
       method: 'PATCH',
       path: ['api', 'v1', 'users', 'me', 'upgrade-plan'],
       headers: [bearer('access_token')],
-      description: 'This is the "Cambio de plan al usuario" step from the assignment brief\'s example flow.',
-      tests: [statusIs(200), fieldEquals('Plan is now premium', '.data.plan', 'premium')],
+      description: 'Este es el paso "Cambio de plan al usuario" del flujo de ejemplo del enunciado de la tarea.',
+      tests: [statusIs(200), fieldEquals('El plan ahora es premium', '.data.plan', 'premium')],
     }),
 
     req({
-      name: 'Upgrade Plan - Already Premium (400)',
+      name: 'Mejorar Plan - Ya es Premium (400)',
       method: 'PATCH',
       path: ['api', 'v1', 'users', 'me', 'upgrade-plan'],
       headers: [bearer('access_token')],
@@ -95,46 +95,46 @@ function buildUsersFolder() {
     }),
 
     req({
-      name: 'Upgrade Plan - No Auth (401)',
+      name: 'Mejorar Plan - Sin Autenticación (401)',
       method: 'PATCH',
       path: ['api', 'v1', 'users', 'me', 'upgrade-plan'],
       tests: [statusIs(401)],
     }),
 
     req({
-      name: 'Get Usage - Premium Plan (200)',
+      name: 'Obtener Uso - Plan Premium (200)',
       method: 'GET',
       path: ['api', 'v1', 'users', 'me', 'usage'],
       headers: [bearer('access_token')],
       tests: [
         statusIs(200),
-        fieldEquals('Plan is premium', '.data.plan', 'premium'),
-        fieldEquals('Limit is null (unlimited)', '.data.limit', null),
-        fieldEquals('Percentage used is null', '.data.percentageUsed', null),
+        fieldEquals('El plan es premium', '.data.plan', 'premium'),
+        fieldEquals('El límite es null (ilimitado)', '.data.limit', null),
+        fieldEquals('El porcentaje usado es null', '.data.percentageUsed', null),
       ],
     }),
 
     req({
-      name: 'Get All Users (Admin) - Success (200)',
+      name: 'Obtener Todos los Usuarios (Admin) - Éxito (200)',
       method: 'GET',
       path: ['api', 'v1', 'users'],
       headers: [bearer('admin_access_token')],
       tests: [
         statusIs(200),
-        fieldExists('Users array is present', '.data.users'),
-        fieldExists('Pagination metadata is present', '.pagination'),
+        fieldExists('El arreglo de usuarios está presente', '.data.users'),
+        fieldExists('Los metadatos de paginación están presentes', '.pagination'),
       ],
     }),
 
     req({
-      name: 'Get All Users (Admin) - No Auth (401)',
+      name: 'Obtener Todos los Usuarios (Admin) - Sin Autenticación (401)',
       method: 'GET',
       path: ['api', 'v1', 'users'],
       tests: [statusIs(401)],
     }),
 
     req({
-      name: 'Get All Users (Admin) - Forbidden Non-Admin (403)',
+      name: 'Obtener Todos los Usuarios (Admin) - Prohibido para No Admin (403)',
       method: 'GET',
       path: ['api', 'v1', 'users'],
       headers: [bearer('access_token')],
@@ -142,20 +142,20 @@ function buildUsersFolder() {
     }),
 
     req({
-      name: 'Get User By Id (Admin) - Success (200)',
+      name: 'Obtener Usuario por Id (Admin) - Éxito (200)',
       method: 'GET',
       path: ['api', 'v1', 'users', '{{user3_id}}'],
       headers: [bearer('admin_access_token')],
       tests: [
         statusIs(200),
-        `pm.test("Returned user matches the requested id", function () {
+        `pm.test("El usuario devuelto coincide con el id solicitado", function () {
   pm.expect(pm.response.json().data.user.id).to.eql(pm.collectionVariables.get("user3_id"));
 });`,
       ],
     }),
 
     req({
-      name: 'Get User By Id (Admin) - Not Found (404)',
+      name: 'Obtener Usuario por Id (Admin) - No Encontrado (404)',
       method: 'GET',
       path: ['api', 'v1', 'users', FAKE_ID],
       headers: [bearer('admin_access_token')],
@@ -163,7 +163,7 @@ function buildUsersFolder() {
     }),
 
     req({
-      name: 'Get User By Id (Admin) - Forbidden Non-Admin (403)',
+      name: 'Obtener Usuario por Id (Admin) - Prohibido para No Admin (403)',
       method: 'GET',
       path: ['api', 'v1', 'users', '{{user3_id}}'],
       headers: [bearer('access_token')],
@@ -171,14 +171,14 @@ function buildUsersFolder() {
     }),
 
     req({
-      name: 'Get User By Id (Admin) - No Auth (401)',
+      name: 'Obtener Usuario por Id (Admin) - Sin Autenticación (401)',
       method: 'GET',
       path: ['api', 'v1', 'users', '{{user3_id}}'],
       tests: [statusIs(401)],
     }),
 
     req({
-      name: 'Delete User (Admin) - Success (204)',
+      name: 'Eliminar Usuario (Admin) - Éxito (204)',
       method: 'DELETE',
       path: ['api', 'v1', 'users', '{{user3_id}}'],
       headers: [bearer('admin_access_token')],
@@ -186,16 +186,16 @@ function buildUsersFolder() {
     }),
 
     req({
-      name: 'Delete User (Admin) - Not Found (404)',
+      name: 'Eliminar Usuario (Admin) - No Encontrado (404)',
       method: 'DELETE',
       path: ['api', 'v1', 'users', '{{user3_id}}'],
       headers: [bearer('admin_access_token')],
-      description: 'Same id as above, now already deleted.',
+      description: 'El mismo id de arriba, que ahora ya fue eliminado.',
       tests: [statusIs(404)],
     }),
 
     req({
-      name: 'Delete User (Admin) - Forbidden Non-Admin (403)',
+      name: 'Eliminar Usuario (Admin) - Prohibido para No Admin (403)',
       method: 'DELETE',
       path: ['api', 'v1', 'users', FAKE_ID],
       headers: [bearer('access_token')],
@@ -203,28 +203,28 @@ function buildUsersFolder() {
     }),
 
     req({
-      name: 'Delete User (Admin) - No Auth (401)',
+      name: 'Eliminar Usuario (Admin) - Sin Autenticación (401)',
       method: 'DELETE',
       path: ['api', 'v1', 'users', FAKE_ID],
       tests: [statusIs(401)],
     }),
 
     req({
-      name: 'Delete Me (Self) - Success (204)',
+      name: 'Eliminar Mi Cuenta (Propia) - Éxito (204)',
       method: 'DELETE',
       path: ['api', 'v1', 'users', 'me'],
       headers: [bearer('user2_access_token')],
-      description: 'user2 deletes their own account. Cascades to delete any of their playlists (user2 has none in this flow).',
+      description: 'user2 elimina su propia cuenta. Se eliminan en cascada todas sus playlists (user2 no tiene ninguna en este flujo).',
       tests: [statusIs(204)],
     }),
 
     req({
-      name: 'Delete Me (Self) - Invalid Token After Deletion (401)',
+      name: 'Eliminar Mi Cuenta (Propia) - Token Inválido Tras la Eliminación (401)',
       method: 'DELETE',
       path: ['api', 'v1', 'users', 'me'],
       headers: [bearer('user2_access_token')],
-      description: 'Reuses user2\'s now-stale token to specifically exercise the "user belonging to this token no longer exists" path.',
-      tests: [statusIs(401), messageContains('Explains the stale token', 'no longer exists')],
+      description: 'Reutiliza el token ya obsoleto de user2 para ejercitar específicamente el caso "el usuario al que pertenece este token ya no existe".',
+      tests: [statusIs(401), messageContains('Explica el token obsoleto', 'no longer exists')],
     }),
   ]);
 }
