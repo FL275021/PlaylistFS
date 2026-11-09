@@ -1,0 +1,1369 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Pruebas AJAX manuales para los endpoints de OB1 Music."
+    />
+    <title>Hito 1 · Pruebas AJAX | OB1 Music</title>
+    <style>
+      :root {
+        color-scheme: light;
+        font-family:
+          Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont,
+          "Segoe UI", sans-serif;
+        color: #20231f;
+        background: #f5f6f1;
+        font-synthesis: none;
+        text-rendering: optimizeLegibility;
+        -webkit-font-smoothing: antialiased;
+        --green: #277352;
+        --green-dark: #1d5e43;
+        --muted: #73786f;
+        --line: #e2e5dc;
+        --paper: #fff;
+        --danger: #a52c22;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 320px;
+        margin: 0;
+        background: #f5f6f1;
+      }
+
+      header {
+        padding: 28px max(24px, calc((100vw - 1180px) / 2));
+        color: #fff;
+        background: #244c3a;
+      }
+
+      header p {
+        margin: 0 0 8px;
+        color: #c4d8c6;
+        font-size: 11px;
+        font-weight: 750;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3,
+      p {
+        margin-top: 0;
+      }
+
+      h1 {
+        margin-bottom: 8px;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(32px, 5vw, 48px);
+        font-weight: 400;
+        letter-spacing: -0.04em;
+      }
+
+      header .subtitle {
+        max-width: 680px;
+        margin-bottom: 0;
+        color: #e1ebe2;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      main {
+        width: min(100% - 32px, 1180px);
+        margin: 24px auto 60px;
+      }
+
+      .notice {
+        margin-bottom: 18px;
+        border: 1px solid #e8d1a9;
+        border-radius: 10px;
+        padding: 14px 16px;
+        color: #68491b;
+        background: #fff8e9;
+        font-size: 13px;
+        line-height: 1.55;
+      }
+
+      .notice strong {
+        color: #50330b;
+      }
+
+      .panel,
+      .section-card,
+      .result-panel {
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: var(--paper);
+      }
+
+      .panel {
+        margin-bottom: 18px;
+        padding: 18px;
+      }
+
+      .panel h2,
+      .section-title {
+        margin-bottom: 7px;
+        font-size: 17px;
+      }
+
+      .help {
+        margin-bottom: 0;
+        color: var(--muted);
+        font-size: 12px;
+        line-height: 1.55;
+      }
+
+      .api-row,
+      .field-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: end;
+        gap: 12px;
+      }
+
+      .api-row {
+        margin-top: 14px;
+      }
+
+      .field {
+        min-width: 170px;
+        flex: 1;
+      }
+
+      .field.small {
+        max-width: 280px;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 6px;
+        color: #454b44;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      input,
+      select {
+        width: 100%;
+        min-height: 38px;
+        border: 1px solid #dfe3d9;
+        border-radius: 7px;
+        padding: 8px 10px;
+        color: #20231f;
+        background: #fff;
+        font: inherit;
+        font-size: 12px;
+      }
+
+      input:focus,
+      select:focus,
+      button:focus-visible {
+        border-color: var(--green);
+        outline: 3px solid rgba(39, 115, 82, 0.13);
+        outline-offset: 1px;
+      }
+
+      button {
+        min-height: 38px;
+        border: 1px solid var(--green);
+        border-radius: 7px;
+        padding: 8px 12px;
+        color: #fff;
+        background: var(--green);
+        font: inherit;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      button:hover:not(:disabled) {
+        border-color: var(--green-dark);
+        background: var(--green-dark);
+      }
+
+      button:disabled {
+        cursor: not-allowed;
+        opacity: 0.55;
+      }
+
+      button.secondary {
+        border-color: #dce1d7;
+        color: #384138;
+        background: #fff;
+      }
+
+      button.secondary:hover:not(:disabled) {
+        background: #f4f7f1;
+      }
+
+      button.danger {
+        border-color: #a52c22;
+        background: #a52c22;
+      }
+
+      .session-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 16px;
+      }
+
+      .session-box {
+        min-width: 0;
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 13px;
+      }
+
+      .session-box h3 {
+        margin-bottom: 6px;
+        font-size: 13px;
+      }
+
+      .session-box p {
+        margin-bottom: 10px;
+      }
+
+      .session-status {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        margin: 12px 0 0;
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      .session-status::before {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: #a3a99f;
+        content: "";
+      }
+
+      .session-status.active {
+        color: var(--green-dark);
+      }
+
+      .session-status.active::before {
+        background: #3b9a65;
+      }
+
+      .sections {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+      }
+
+      .section-card {
+        min-width: 0;
+        padding: 18px;
+      }
+
+      .section-heading {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 14px;
+      }
+
+      .section-heading p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.5;
+      }
+
+      .step {
+        display: inline-grid;
+        width: 25px;
+        height: 25px;
+        flex: 0 0 auto;
+        place-items: center;
+        border-radius: 8px;
+        color: var(--green-dark);
+        background: #edf5ef;
+        font-size: 11px;
+        font-weight: 800;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin-top: 12px;
+      }
+
+      .actions button {
+        min-height: 34px;
+        padding: 6px 10px;
+        font-size: 11px;
+      }
+
+      .inline-fields {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 10px;
+        margin-top: 12px;
+      }
+
+      .wide {
+        grid-column: 1 / -1;
+      }
+
+      .section-card .help + .field-row,
+      .section-card .field-row + .field-row {
+        margin-top: 11px;
+      }
+
+      .separate {
+        margin-top: 12px;
+        border-top: 1px solid #edf0e9;
+        padding-top: 12px;
+      }
+
+      .result-panel {
+        margin-top: 18px;
+        overflow: hidden;
+      }
+
+      .result-header {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        border-bottom: 1px solid var(--line);
+        padding: 12px 16px;
+      }
+
+      .result-header h2 {
+        margin: 0;
+        font-size: 13px;
+      }
+
+      .result-header span {
+        color: var(--muted);
+        font-size: 11px;
+      }
+
+      #results {
+        max-height: 390px;
+        min-height: 150px;
+        overflow: auto;
+        margin: 0;
+        padding: 16px;
+        color: #dce8df;
+        background: #1f2923;
+        font:
+          11px/1.55 ui-monospace, SFMono-Regular, Consolas, monospace;
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+
+      #history {
+        display: grid;
+        gap: 6px;
+        max-height: 185px;
+        overflow: auto;
+        padding: 12px 16px;
+        background: #fbfcf9;
+      }
+
+      .history-item {
+        display: grid;
+        grid-template-columns: 58px 47px minmax(120px, 1fr) auto;
+        align-items: baseline;
+        gap: 8px;
+        color: #565d54;
+        font:
+          10px/1.45 ui-monospace, SFMono-Regular, Consolas, monospace;
+      }
+
+      .history-item .ok {
+        color: #277352;
+      }
+
+      .history-item .fail {
+        color: var(--danger);
+      }
+
+      .footnote {
+        margin: 13px 0 0;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.55;
+      }
+
+      @media (max-width: 760px) {
+        .sections {
+          grid-template-columns: 1fr;
+        }
+
+        .session-row {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .inline-fields {
+          grid-template-columns: 1fr;
+        }
+
+        .wide {
+          grid-column: auto;
+        }
+
+        .history-item {
+          grid-template-columns: 45px 40px minmax(100px, 1fr) auto;
+          gap: 5px;
+          font-size: 9px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <p>OB1 Music · Frontend · Hito 1</p>
+      <h1>Pruebas AJAX de la API</h1>
+      <p class="subtitle">
+        Consola HTML independiente para probar los servicios con solicitudes
+        reales y datos de ejemplo. Sigue el orden de autenticación, consulta de
+        recursos, operaciones y limpieza.
+      </p>
+    </header>
+
+    <main>
+      <div class="notice">
+        <strong>Usala solo con una API local o de pruebas.</strong> Algunas
+        acciones crean datos, cambian el plan o eliminan recursos. La cuenta de
+        prueba se genera con un identificador único; las operaciones de
+        administrador necesitan iniciar sesión aparte.
+      </div>
+
+      <section class="panel" aria-labelledby="config-title">
+        <h2 id="config-title">Conexión y sesiones</h2>
+        <p class="help">
+          Iniciá la API en el puerto 4000 y serví esta página con Vite desde
+          FrontEnd. No abras el HTML como <code>file://</code>, porque el
+          navegador puede bloquear las solicitudes por CORS.
+        </p>
+        <div class="api-row">
+          <div class="field">
+            <label for="apiBase">URL base de la API</label>
+            <input id="apiBase" value="http://localhost:4000/api/v1" />
+          </div>
+          <button type="button" data-action="health">Probar conexión</button>
+          <button type="button" class="secondary" data-action="reset-output">
+            Limpiar resultados
+          </button>
+        </div>
+
+        <div class="session-row">
+          <div class="session-box">
+            <h3>Usuario de prueba</h3>
+            <p class="help">
+              Se registra con credenciales de demostración generadas para esta
+              pestaña.
+            </p>
+            <div class="actions">
+              <button type="button" data-action="register">
+                1. Registrar usuario
+              </button>
+              <button type="button" data-action="login" class="secondary">
+                2. Iniciar sesión
+              </button>
+              <button type="button" data-action="me" class="secondary">
+                3. Consultar /auth/me
+              </button>
+              <button type="button" data-action="logout" class="secondary">
+                Cerrar sesión
+              </button>
+            </div>
+            <p id="userSessionStatus" class="session-status">
+              Sin sesión de usuario
+            </p>
+          </div>
+
+          <div class="session-box">
+            <h3>Sesión de administrador</h3>
+            <p class="help">
+              Usá credenciales admin configuradas en el seed del backend. No se
+              guardan en la página.
+            </p>
+            <div class="inline-fields">
+              <div class="field">
+                <label for="adminIdentifier">Usuario o email admin</label>
+                <input id="adminIdentifier" autocomplete="username" />
+              </div>
+              <div class="field">
+                <label for="adminPassword">Contraseña admin</label>
+                <input
+                  id="adminPassword"
+                  type="password"
+                  autocomplete="current-password"
+                />
+              </div>
+            </div>
+            <div class="actions">
+              <button type="button" data-action="admin-login">
+                Login admin
+              </button>
+              <button type="button" data-action="admin-logout" class="secondary">
+                Cerrar sesión admin
+              </button>
+            </div>
+            <p id="adminSessionStatus" class="session-status">
+              Sin sesión admin
+            </p>
+          </div>
+        </div>
+        <p class="footnote">
+          La página guarda solo los identificadores de prueba en
+          <code>sessionStorage</code>; los tokens permanecen en memoria y se
+          borran al recargar o cerrar sesión.
+        </p>
+      </section>
+
+      <div class="sections">
+        <section class="section-card">
+          <div class="section-heading">
+            <div>
+              <h2 class="section-title">Géneros</h2>
+              <p>Lecturas con usuario; alta, edición y baja requieren admin.</p>
+            </div>
+            <span class="step">04</span>
+          </div>
+          <div class="actions">
+            <button type="button" data-action="genres-list">GET /genres</button>
+            <button type="button" data-action="genre-get" class="secondary">
+              GET /genres/:id
+            </button>
+            <button type="button" data-action="genre-create">
+              POST /genres (admin)
+            </button>
+            <button type="button" data-action="genre-update" class="secondary">
+              PATCH /genres/:id (admin)
+            </button>
+            <button type="button" data-action="genre-delete" class="danger">
+              DELETE /genres/:id (admin)
+            </button>
+          </div>
+          <div class="field-row separate">
+            <div class="field">
+              <label for="genreSelect">Género para pruebas de playlist</label>
+              <select id="genreSelect">
+                <option value="">Primero consultá los géneros</option>
+              </select>
+            </div>
+          </div>
+          <p class="footnote">
+            El género creado para prueba es nuevo y solo se puede borrar si no
+            tiene playlists asociadas.
+          </p>
+        </section>
+
+        <section class="section-card">
+          <div class="section-heading">
+            <div>
+              <h2 class="section-title">Playlists</h2>
+              <p>Operaciones autenticadas sobre la playlist de demostración.</p>
+            </div>
+            <span class="step">05</span>
+          </div>
+          <div class="actions">
+            <button type="button" data-action="playlist-create">
+              POST /playlists
+            </button>
+            <button type="button" data-action="playlists-list" class="secondary">
+              GET /playlists
+            </button>
+            <button type="button" data-action="playlists-filter" class="secondary">
+              Filtrar por género y texto
+            </button>
+            <button type="button" data-action="playlist-get" class="secondary">
+              GET /playlists/:id
+            </button>
+            <button type="button" data-action="playlist-update" class="secondary">
+              PATCH /playlists/:id
+            </button>
+            <button type="button" data-action="playlist-delete" class="danger">
+              DELETE /playlists/:id
+            </button>
+            <button type="button" data-action="playlist-cleanup" class="secondary">
+              Limpiar playlists de prueba
+            </button>
+          </div>
+          <div class="separate">
+            <p class="help">
+              El límite de Plus es 4. Este flujo crea playlists solo para la
+              cuenta temporal de prueba y también comprueba el rechazo de la
+              quinta antes de subir a Premium.
+            </p>
+            <div class="actions">
+              <button type="button" data-action="plan-limit">
+                Probar límite Plus (crea datos)
+              </button>
+              <button type="button" data-action="usage" class="secondary">
+                GET /users/me/usage
+              </button>
+              <button type="button" data-action="upgrade" class="secondary">
+                PATCH upgrade-plan
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="section-card">
+          <div class="section-heading">
+            <div>
+              <h2 class="section-title">Pistas, imagen e IA</h2>
+              <p>La búsqueda consulta iTunes; la imagen usa multipart/form-data.</p>
+            </div>
+            <span class="step">06</span>
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label for="trackQuery">Buscar en iTunes</label>
+              <input id="trackQuery" value="Bohemian Rhapsody" />
+            </div>
+            <button type="button" data-action="track-search">
+              GET /tracks/search
+            </button>
+          </div>
+          <div class="actions">
+            <button type="button" data-action="track-add">
+              POST /playlists/:id/tracks
+            </button>
+            <button type="button" data-action="track-remove" class="secondary">
+              DELETE /playlists/:id/tracks/:trackId
+            </button>
+            <button type="button" data-action="vibe" class="secondary">
+              POST generate-vibe
+            </button>
+          </div>
+          <div class="field-row separate">
+            <div class="field">
+              <label for="coverImage">Imagen de portada (máximo 5 MB)</label>
+              <input id="coverImage" type="file" accept="image/*" />
+            </div>
+            <button type="button" data-action="cover-upload">
+              Subir portada
+            </button>
+          </div>
+          <p class="footnote">
+            Para la subida real de imagen se necesita tener Cloudinary
+            configurado en el backend.
+          </p>
+        </section>
+
+        <section class="section-card">
+          <div class="section-heading">
+            <div>
+              <h2 class="section-title">Mi usuario y administración</h2>
+              <p>Perfil propio requiere usuario; las rutas administrativas requieren admin.</p>
+            </div>
+            <span class="step">07</span>
+          </div>
+          <div class="actions">
+            <button type="button" data-action="profile-update">
+              PATCH /users/me
+            </button>
+            <button type="button" data-action="admin-users" class="secondary">
+              GET /users (admin)
+            </button>
+          </div>
+          <div class="field-row separate">
+            <div class="field">
+              <label for="adminUserId">ID de usuario (rutas admin)</label>
+              <input id="adminUserId" placeholder="24 caracteres hexadecimales" />
+            </div>
+            <button type="button" data-action="admin-user-get" class="secondary">
+              GET /users/:id
+            </button>
+            <button type="button" data-action="admin-user-delete" class="danger">
+              DELETE /users/:id
+            </button>
+          </div>
+          <div class="actions separate">
+            <button type="button" data-action="delete-me" class="danger">
+              DELETE /users/me (irreversible)
+            </button>
+          </div>
+          <p class="footnote">
+            Borrar la cuenta elimina también sus playlists. Las acciones de
+            borrado piden confirmación.
+          </p>
+        </section>
+      </div>
+
+      <section class="result-panel" aria-labelledby="results-title">
+        <div class="result-header">
+          <h2 id="results-title">Última respuesta</h2>
+          <span id="lastRequest">Todavía no se hicieron solicitudes</span>
+        </div>
+        <pre id="results" aria-live="polite">La respuesta de cada consulta aparecerá acá.</pre>
+        <div class="result-header">
+          <h2>Historial de solicitudes</h2>
+          <span id="requestCount">0 solicitudes</span>
+        </div>
+        <div id="history" aria-live="polite"></div>
+      </section>
+    </main>
+
+    <script>
+      (() => {
+        const PASSWORD = "Hito1_Demo_2026!";
+        const SESSION_KEY = "ob1-hito1-test-account";
+        const state = {
+          token: "",
+          adminToken: "",
+          username: "",
+          email: "",
+          currentUserId: "",
+          genreId: "",
+          testGenreId: "",
+          playlistId: "",
+          trackId: "",
+          playlistIds: [],
+          requestCount: 0,
+          isPremium: false,
+        };
+
+        const $ = (selector) => document.querySelector(selector);
+        const responseBox = $("#results");
+        const historyBox = $("#history");
+
+        const loadTestAccount = () => {
+          try {
+            const existing = JSON.parse(sessionStorage.getItem(SESSION_KEY));
+            if (
+              existing?.username &&
+              existing?.email &&
+              existing.username.length <= 30
+            ) {
+              return existing;
+            }
+          } catch {
+            sessionStorage.removeItem(SESSION_KEY);
+          }
+
+          const suffix = Date.now().toString(36);
+          const account = {
+            username: `hito1${suffix}`.slice(0, 30),
+            email: `hito1-${suffix}@example.com`,
+          };
+          sessionStorage.setItem(SESSION_KEY, JSON.stringify(account));
+          return account;
+        };
+
+        Object.assign(state, loadTestAccount());
+
+        const baseUrl = () => $("#apiBase").value.trim().replace(/\/+$/, "");
+
+        const apiUrl = (path) => {
+          const base = baseUrl();
+          if (!/^https?:\/\//i.test(base)) {
+            throw new Error("La URL base debe comenzar con http:// o https://");
+          }
+          if (path === "/health") {
+            return new URL(path, base).href;
+          }
+          return `${base}${path}`;
+        };
+
+        const redact = (value) => {
+          if (Array.isArray(value)) return value.map(redact);
+          if (value && typeof value === "object") {
+            return Object.fromEntries(
+              Object.entries(value).map(([key, item]) => [
+                key,
+                /token/i.test(key) ? "[oculto]" : redact(item),
+              ]),
+            );
+          }
+          return value;
+        };
+
+        const setSessionStatus = (element, text, active) => {
+          const node = $(element);
+          node.textContent = text;
+          node.classList.toggle("active", active);
+        };
+
+        const updateUserStatus = () => {
+          setSessionStatus(
+            "#userSessionStatus",
+            state.token
+              ? `Sesión activa: ${state.username}`
+              : `Sin sesión · Cuenta de prueba: ${state.username}`,
+            Boolean(state.token),
+          );
+        };
+
+        const updateAdminStatus = () => {
+          setSessionStatus(
+            "#adminSessionStatus",
+            state.adminToken ? "Sesión admin activa" : "Sin sesión admin",
+            Boolean(state.adminToken),
+          );
+        };
+
+        const showResponse = (method, path, status, payload, ok) => {
+          const time = new Date().toLocaleTimeString();
+          $("#lastRequest").textContent =
+            `${time} · ${method} ${path} · HTTP ${status}`;
+          responseBox.textContent = JSON.stringify(redact(payload), null, 2);
+
+          const item = document.createElement("div");
+          item.className = "history-item";
+          const outcome = document.createElement("span");
+          outcome.className = ok ? "ok" : "fail";
+          outcome.textContent = ok ? "OK" : "ERROR";
+          const statusNode = document.createElement("span");
+          statusNode.textContent = String(status);
+          const endpoint = document.createElement("span");
+          endpoint.textContent = `${method} ${path}`;
+          const timestamp = document.createElement("span");
+          timestamp.textContent = time;
+          item.append(outcome, statusNode, endpoint, timestamp);
+          historyBox.prepend(item);
+
+          state.requestCount += 1;
+          $("#requestCount").textContent =
+            `${state.requestCount} solicitud${state.requestCount === 1 ? "" : "es"}`;
+        };
+
+        const request = async (
+          method,
+          path,
+          {
+            body,
+            auth = "user",
+            formData,
+            expectedStatuses = [],
+            mustReturnStatus,
+          } = {},
+        ) => {
+          const token =
+            auth === "admin"
+              ? state.adminToken
+              : auth === "none"
+                ? ""
+                : state.token;
+
+          if (auth !== "none" && !token) {
+            throw new Error(
+              auth === "admin"
+                ? "Iniciá sesión como administrador antes de usar este endpoint."
+                : "Primero registrá el usuario de prueba e iniciá sesión.",
+            );
+          }
+
+          const headers = {};
+          if (token) headers.Authorization = `Bearer ${token}`;
+          if (body !== undefined) headers["Content-Type"] = "application/json";
+
+          let response;
+          let payload;
+          try {
+            response = await fetch(apiUrl(path), {
+              method,
+              headers,
+              body:
+                body !== undefined
+                  ? JSON.stringify(body)
+                  : formData || undefined,
+            });
+            const text = await response.text();
+            if (text) {
+              try {
+                payload = JSON.parse(text);
+              } catch {
+                payload = text;
+              }
+            } else {
+              payload = { message: "Sin contenido (respuesta válida)." };
+            }
+          } catch (error) {
+            showResponse(method, path, "sin respuesta", {
+              message:
+                error.message ||
+                "No fue posible conectar. Revisá que la API esté levantada y que CORS permita este origen.",
+            }, false);
+            throw error;
+          }
+
+          const ok =
+            (mustReturnStatus === undefined && response.ok) ||
+            expectedStatuses.includes(response.status) ||
+            response.status === mustReturnStatus;
+          showResponse(method, path, response.status, payload, ok);
+
+          if (!ok) {
+            const message =
+              payload?.message ||
+              payload?.error ||
+              `La solicitud falló con HTTP ${response.status}.`;
+            const error = new Error(message);
+            error.status = response.status;
+            error.payload = payload;
+            throw error;
+          }
+
+          return payload;
+        };
+
+        const requireGenre = () => {
+          const id = $("#genreSelect").value || state.genreId;
+          if (!id) throw new Error("Consultá los géneros y seleccioná uno primero.");
+          state.genreId = id;
+          return id;
+        };
+
+        const requirePlaylist = () => {
+          if (!state.playlistId) {
+            throw new Error("Primero creá una playlist de prueba.");
+          }
+          return state.playlistId;
+        };
+
+        const updateGenreOptions = (genres) => {
+          const select = $("#genreSelect");
+          select.replaceChildren();
+          for (const genre of genres) {
+            const option = document.createElement("option");
+            option.value = genre.id || genre._id;
+            option.textContent = genre.name;
+            select.append(option);
+          }
+          if (!genres.length) {
+            const option = document.createElement("option");
+            option.value = "";
+            option.textContent = "No hay géneros disponibles";
+            select.append(option);
+          }
+          state.genreId = select.value;
+        };
+
+        const handle = async (action) => {
+          let result;
+          switch (action) {
+            case "health":
+              result = await request("GET", "/health", { auth: "none" });
+              return result;
+            case "register":
+              result = await request("POST", "/auth/register", {
+                auth: "none",
+                body: {
+                  username: state.username,
+                  email: state.email,
+                  password: PASSWORD,
+                },
+              });
+              return result;
+            case "login":
+              result = await request("POST", "/auth/login", {
+                auth: "none",
+                body: { identifier: state.username, password: PASSWORD },
+              });
+              state.token = result.token;
+              if (result.data?.user?.id) {
+                state.currentUserId = result.data.user.id;
+                $("#adminUserId").value = state.currentUserId;
+              }
+              state.isPremium = result.data?.user?.plan === "premium";
+              updateUserStatus();
+              return result;
+            case "me":
+              result = await request("GET", "/auth/me");
+              if (result.data?.user?.id) {
+                state.currentUserId = result.data.user.id;
+                $("#adminUserId").value = state.currentUserId;
+              }
+              return result;
+            case "logout":
+              state.token = "";
+              state.currentUserId = "";
+              updateUserStatus();
+              responseBox.textContent =
+                "Sesión de usuario cerrada localmente. El JWT ya no se enviará en las próximas solicitudes.";
+              return;
+            case "admin-login":
+              result = await request("POST", "/auth/login", {
+                auth: "none",
+                body: {
+                  identifier: $("#adminIdentifier").value.trim(),
+                  password: $("#adminPassword").value,
+                },
+              });
+              state.adminToken = result.token;
+              $("#adminPassword").value = "";
+              updateAdminStatus();
+              return result;
+            case "admin-logout":
+              state.adminToken = "";
+              updateAdminStatus();
+              responseBox.textContent =
+                "Sesión admin cerrada localmente. El JWT ya no se enviará.";
+              return;
+            case "genres-list":
+              result = await request("GET", "/genres");
+              updateGenreOptions(result.data?.genres || []);
+              return result;
+            case "genre-get": {
+              const id = $("#genreSelect").value || state.genreId;
+              if (!id) throw new Error("Primero consultá la lista de géneros.");
+              return request("GET", `/genres/${encodeURIComponent(id)}`);
+            }
+            case "genre-create":
+              result = await request("POST", "/genres", {
+                auth: "admin",
+                body: {
+                  name: `Hito1-${Date.now().toString(36)}`,
+                  description: "Género temporal creado desde las pruebas AJAX.",
+                },
+              });
+              state.testGenreId =
+                result.data?.genre?.id || result.data?.genre?._id || "";
+              if (state.testGenreId) state.genreId = state.testGenreId;
+              return result;
+            case "genre-update":
+              if (!state.testGenreId) {
+                throw new Error("Primero creá un género de prueba con admin.");
+              }
+              return request("PATCH", `/genres/${state.testGenreId}`, {
+                auth: "admin",
+                body: { description: "Descripción actualizada desde Hito 1." },
+              });
+            case "genre-delete":
+              if (!state.testGenreId) {
+                throw new Error("Solo se permite borrar el género creado por esta página.");
+              }
+              if (!confirm("¿Eliminar el género temporal de esta prueba?")) return;
+              result = await request("DELETE", `/genres/${state.testGenreId}`, {
+                auth: "admin",
+                expectedStatuses: [204],
+              });
+              state.testGenreId = "";
+              return result;
+            case "playlist-create":
+              result = await request("POST", "/playlists", {
+                body: {
+                  name: `Hito1 Playlist ${new Date().toLocaleString("es-UY")}`,
+                  description: "Playlist de demostración generada desde Hito 1.",
+                  genre: requireGenre(),
+                  isPublic: true,
+                },
+              });
+              state.playlistId =
+                result.data?.playlist?.id || result.data?.playlist?._id || "";
+              if (state.playlistId) state.playlistIds.push(state.playlistId);
+              return result;
+            case "playlists-list":
+              return request("GET", "/playlists?page=1&limit=10");
+            case "playlists-filter": {
+              const params = new URLSearchParams({
+                genre: requireGenre(),
+                search: "Hito1",
+                page: "1",
+                limit: "10",
+              });
+              return request("GET", `/playlists?${params}`);
+            }
+            case "playlist-get":
+              return request("GET", `/playlists/${requirePlaylist()}`);
+            case "playlist-update":
+              return request("PATCH", `/playlists/${requirePlaylist()}`, {
+                body: {
+                  description: "Descripción editada con la prueba de Hito 1.",
+                },
+              });
+            case "playlist-delete":
+              if (!confirm("¿Eliminar la playlist de prueba seleccionada?")) return;
+              result = await request(
+                "DELETE",
+                `/playlists/${requirePlaylist()}`,
+                { expectedStatuses: [204] },
+              );
+              state.playlistIds = state.playlistIds.filter(
+                (id) => id !== state.playlistId,
+              );
+              state.playlistId = "";
+              state.trackId = "";
+              return result;
+            case "playlist-cleanup": {
+              const listed = await request("GET", "/playlists?page=1&limit=100");
+              const testPlaylists = (listed.data?.playlists || []).filter(
+                (playlist) =>
+                  playlist.name?.startsWith("Hito1 ") ||
+                  playlist.name?.includes("Hito 1"),
+              );
+              if (!testPlaylists.length) {
+                throw new Error("No se encontraron playlists identificadas como datos de Hito 1.");
+              }
+              if (
+                !confirm(
+                  `Se eliminarán ${testPlaylists.length} playlists con nombre de prueba Hito 1. ¿Continuar?`,
+                )
+              ) return;
+              for (const playlist of testPlaylists) {
+                const id = playlist.id || playlist._id;
+                await request("DELETE", `/playlists/${id}`, {
+                  expectedStatuses: [204],
+                });
+              }
+              state.playlistIds = [];
+              state.playlistId = "";
+              state.trackId = "";
+              return {
+                message: "Se eliminaron las playlists de prueba listadas.",
+                deleted: testPlaylists.length,
+              };
+            }
+            case "usage":
+              return request("GET", "/users/me/usage");
+            case "upgrade":
+              if (
+                !confirm(
+                  "Esto cambia la cuenta temporal a Premium y no puede revertirse desde la API. ¿Continuar?",
+                )
+              ) return;
+              result = await request("PATCH", "/users/me/upgrade-plan", {
+                body: {},
+                expectedStatuses: [400],
+              });
+              if (result.data?.plan === "premium") state.isPremium = true;
+              return result;
+            case "plan-limit":
+              return await testPlusLimit();
+            case "track-search": {
+              const query = $("#trackQuery").value.trim();
+              if (!query) throw new Error("Escribí un término para buscar pistas.");
+              const params = new URLSearchParams({ q: query });
+              return request("GET", `/tracks/search?${params}`);
+            }
+            case "track-add":
+              result = await request(
+                "POST",
+                `/playlists/${requirePlaylist()}/tracks`,
+                {
+                  body: {
+                    title: "Bohemian Rhapsody",
+                    artist: "Queen",
+                    album: "A Night at the Opera",
+                    durationMs: 354000,
+                    previewUrl: "",
+                    artworkUrl: "",
+                  },
+                },
+              );
+              {
+                const playlist = result.data?.playlist;
+                const tracks = playlist?.tracks || [];
+                const added = tracks[tracks.length - 1];
+                state.trackId = added?.id || added?._id || "";
+              }
+              return result;
+            case "track-remove":
+              if (!state.trackId) {
+                throw new Error("Primero agregá la pista de demostración.");
+              }
+              result = await request(
+                "DELETE",
+                `/playlists/${requirePlaylist()}/tracks/${state.trackId}`,
+                { expectedStatuses: [200] },
+              );
+              state.trackId = "";
+              return result;
+            case "cover-upload": {
+              const file = $("#coverImage").files[0];
+              if (!file) throw new Error("Elegí un archivo de imagen primero.");
+              if (!file.type.startsWith("image/")) {
+                throw new Error("El archivo seleccionado no es una imagen.");
+              }
+              if (file.size > 5 * 1024 * 1024) {
+                throw new Error("La imagen debe pesar 5 MB o menos.");
+              }
+              const formData = new FormData();
+              formData.append("image", file);
+              return request(
+                "POST",
+                `/playlists/${requirePlaylist()}/cover-image`,
+                { formData },
+              );
+            }
+            case "vibe":
+              return request(
+                "POST",
+                `/playlists/${requirePlaylist()}/generate-vibe`,
+                { body: {} },
+              );
+            case "profile-update":
+              result = await request("PATCH", "/users/me", {
+                body: { username: `${state.username}edit`.slice(0, 30) },
+              });
+              state.username = result.data?.user?.username || state.username;
+              sessionStorage.setItem(
+                SESSION_KEY,
+                JSON.stringify({ username: state.username, email: state.email }),
+              );
+              updateUserStatus();
+              return result;
+            case "admin-users":
+              return request("GET", "/users?page=1&limit=10", {
+                auth: "admin",
+              });
+            case "admin-user-get": {
+              const id = $("#adminUserId").value.trim();
+              if (!id) throw new Error("Ingresá un ID de usuario.");
+              return request("GET", `/users/${encodeURIComponent(id)}`, {
+                auth: "admin",
+              });
+            }
+            case "admin-user-delete": {
+              const id = $("#adminUserId").value.trim();
+              if (!id) throw new Error("Ingresá el ID de la cuenta que vas a borrar.");
+              if (
+                !confirm(
+                  `Esto eliminará al usuario ${id} y todas sus playlists. ¿Continuar?`,
+                )
+              ) return;
+              return request("DELETE", `/users/${encodeURIComponent(id)}`, {
+                auth: "admin",
+                expectedStatuses: [204],
+              });
+            }
+            case "delete-me":
+              if (
+                !confirm(
+                  "Esto eliminará la cuenta temporal y todas sus playlists. Esta acción es irreversible. ¿Continuar?",
+                )
+              ) return;
+              result = await request("DELETE", "/users/me", {
+                expectedStatuses: [204],
+              });
+              state.token = "";
+              state.currentUserId = "";
+              updateUserStatus();
+              return result;
+            default:
+              throw new Error(`Acción desconocida: ${action}`);
+          }
+        };
+
+        const testPlusLimit = async () => {
+          if (state.isPremium) {
+            throw new Error(
+              "La cuenta ya está en Premium. Registrá otro usuario de prueba para probar el límite Plus.",
+            );
+          }
+          const genre = requireGenre();
+          let usage = await request("GET", "/users/me/usage");
+          let used = usage.data?.used;
+
+          if (!Number.isInteger(used)) {
+            throw new Error("La API no devolvió el contador de uso esperado.");
+          }
+          if (used > 4) {
+            throw new Error(
+              `La cuenta ya tiene ${used} playlists (más del límite Plus). Usá una cuenta temporal nueva.`,
+            );
+          }
+
+          while (used < 4) {
+            const created = await request("POST", "/playlists", {
+              body: {
+                name: `Hito1 límite ${used + 1} ${Date.now().toString(36)}`,
+                description: "Playlist temporal para probar el límite Plus.",
+                genre,
+                isPublic: true,
+              },
+            });
+            const id =
+              created.data?.playlist?.id || created.data?.playlist?._id;
+            if (!id) throw new Error("La API no devolvió el ID de la playlist.");
+            state.playlistIds.push(id);
+            state.playlistId = id;
+            used += 1;
+          }
+
+          const fifthAttempt = await request(
+              "POST",
+              "/playlists",
+              {
+                body: {
+                  name: `Hito1 quinta ${Date.now().toString(36)}`,
+                  description: "Esta creación debería ser rechazada en Plus.",
+                  genre,
+                  isPublic: true,
+                },
+                mustReturnStatus: 403,
+              },
+            );
+
+          return {
+            message:
+              "Prueba de límite ejecutada. Se reservaron 4 playlists de prueba; la quinta debe dar 403. Después podés subir el plan y crear otra.",
+            used: 4,
+            limit: 4,
+            fifthPlaylistAttempt: fifthAttempt,
+          };
+        };
+
+        document.addEventListener("click", async (event) => {
+          const button = event.target.closest("[data-action]");
+          if (!button) return;
+          const action = button.dataset.action;
+
+          if (action === "reset-output") {
+            responseBox.textContent =
+              "La respuesta de cada consulta aparecerá acá.";
+            historyBox.replaceChildren();
+            state.requestCount = 0;
+            $("#lastRequest").textContent = "Todavía no se hicieron solicitudes";
+            $("#requestCount").textContent = "0 solicitudes";
+            return;
+          }
+
+          button.disabled = true;
+          const oldText = button.textContent;
+          button.textContent = "Consultando...";
+          try {
+            const result = await handle(action);
+            if (result !== undefined) {
+              responseBox.textContent = JSON.stringify(redact(result), null, 2);
+            }
+          } catch (error) {
+            if (!error.status) {
+              responseBox.textContent = JSON.stringify(
+                { error: error.message || "Error inesperado." },
+                null,
+                2,
+              );
+            }
+          } finally {
+            button.disabled = false;
+            button.textContent = oldText;
+          }
+        });
+
+        $("#genreSelect").addEventListener("change", (event) => {
+          state.genreId = event.target.value;
+        });
+
+        updateUserStatus();
+        updateAdminStatus();
+      })();
+    </script>
+  </body>
+</html>

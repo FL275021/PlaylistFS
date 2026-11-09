@@ -15,6 +15,11 @@ import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      input: ['index.html', 'hito1.html'],
+    },
+  },
   server: {
     open: true, port: 5000,
     watch: { usePolling: true }
