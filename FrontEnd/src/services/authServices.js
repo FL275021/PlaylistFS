@@ -1,47 +1,35 @@
 import axios from "axios";
 
-
-
 const api = axios.create({
-    baseURL: "http://localhost:3000/api/v1",
-    headers: {
-        "Content-Type": "application/json"
-    }
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:4000/api/v1",
+  headers: {
+    "Content-Type": "application/json",
+  },
 });
 
-//interceptor de la peticion, moverlo a servicios de tareas
 api.interceptors.request.use((config) => {
-    //busca en el localStorage el token
-    const token = localStorage.getItem("token");
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
+  const token = window.localStorage.getItem("token");
+
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+
+  return config;
 });
 
-//interceptor de la respuesta
-api.interceptors.response.use(
-    response => response,
-    error => {
-        if (error.response.status === 401) {
-            localStorage.removeItem("token");
-        }
-        return Promise.reject(error);
-    }
-);
+export const registerApi = async (data) => {
+  const response = await api.post("/auth/register", data);
+  return response.data;
+};
 
-//verificar que se manda en este formato 
+export const loginApi = async (data) => {
+  const response = await api.post("/auth/login", data);
+  return response.data;
+};
 
-
-export const loginApi = async (dataLogin) => {
-    console.log('dataLogin en login api', dataLogin)
-    const resultado = await api.post("/auth/login", dataLogin);
-    console.log('resultadoAPI', resultado)
-    return resultado.data;
-}
-
-
-
-
+export const getCurrentUserApi = async () => {
+  const response = await api.get("/auth/me");
+  return response.data;
+};
 
 export default api;
