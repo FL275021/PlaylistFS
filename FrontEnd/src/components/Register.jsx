@@ -122,6 +122,7 @@ const Register = () => {
                 value: 50,
                 message: "No puede superar los 50 caracteres.",
               },
+              deps: ["confirmPassword"],
             })}
           />
           {errors.password && (
@@ -139,7 +140,6 @@ const Register = () => {
             aria-invalid={Boolean(errors.confirmPassword)}
             {...register("confirmPassword", {
               required: "Repetí tu contraseña.",
-              deps: ["password"],
               validate: (value) =>
                 value === getValues("password") ||
                 "Las contraseñas no coinciden.",
