@@ -7,6 +7,7 @@ import PlanUpgrade from "./PlanUpgrade.jsx";
 import PlusUsageReport from "./PlusUsageReport.jsx";
 import UsageChart from "./UsageChart.jsx";
 import PlaylistLibrary from "./PlaylistLibrary.jsx";
+import DiscoverTracks from "./DiscoverTracks.jsx";
 import {
   getGenresApi,
   getPlaylistsApi,
@@ -138,6 +139,7 @@ const Dashboard = () => {
         )}
         <PlanUpgrade onUpgrade={upgrade} />
         <PlaylistLibrary onChange={refresh} />
+        <DiscoverTracks />
         <UsageChart />
       </section>
     </main>
