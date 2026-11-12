@@ -4,7 +4,7 @@ Frontend en React para la API de playlists del Obligatorio 1.
 
 ## Desarrollo local
 
-1. Inicia la API desde `../BackEnd` y verifica que esté disponible en `http://localhost:4000`.
+1. Inicia la API desde `../BackEnd` con `npm run dev` y verifica que esté disponible en `http://localhost:4000`.
 2. Desde esta carpeta, instala dependencias y ejecuta Vite:
 
    ```bash
@@ -12,7 +12,7 @@ Frontend en React para la API de playlists del Obligatorio 1.
    npm run dev
    ```
 
-   3. Abre `http://localhost:5000/hito1.html` para el playground del Hito 1.
+3. Abre `http://localhost:5000` para usar la aplicación.
 
    Por defecto, el frontend consume `http://localhost:4000/api/v1`. Para apuntar a
    otra API, define `VITE_API_URL` en un archivo `.env.local`, por ejemplo:
@@ -21,10 +21,9 @@ Frontend en React para la API de playlists del Obligatorio 1.
 VITE_API_URL=https://tu-api.example.com/api/v1
 ```
 
-El flujo de autenticación implementado incluye registro, inicio/cierre de
-sesión, validación de formularios y restauración de sesión con `GET /auth/me`.
-El dashboard aún es una base visual; la gestión de playlists se incorpora en
-los siguientes hitos.
+El flujo de autenticación incluye registro, inicio/cierre de sesión, validación
+de formularios y restauración de sesión con `GET /auth/me`. El dashboard permite
+gestionar playlists, géneros, pistas e imágenes desde una sola pantalla.
 
 ## Hito 1: pruebas AJAX - ejemplo en one file(cambiar) 
 

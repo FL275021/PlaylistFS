@@ -17,7 +17,7 @@ export default defineConfig({
   plugins: [react()],
   build: {
     rollupOptions: {
-      input: ['index.html', 'hito1.html'],
+      input: ['index.html'],
     },
   },
   server: {
