@@ -1,4 +1,12 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { updateAuthToken } from "../redux/features/authSlice.js";
+import {
+  setPlanUpgrading,
+  setUsageData,
+  setUsageError,
+  setUsageLoading,
+} from "../redux/features/planUsageSlice.js";
 import {
   getPlanUsageApi,
   upgradePlanApi,
@@ -18,31 +26,29 @@ const isValidUsage = (usage) =>
     (Number.isInteger(usage.limit) && usage.limit > 0));
 
 export const usePlanUsage = () => {
-  const [usage, setUsage] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isUpgrading, setIsUpgrading] = useState(false);
-  const [error, setError] = useState("");
+  const dispatch = useDispatch();
+  const { data: usage, status, error, isUpgrading } = useSelector(
+    (state) => state.planUsage,
+  );
+  const isLoading = status === "loading";
 
   const refresh = useCallback(async (signal) => {
-    setIsLoading(true);
-    setError("");
+    dispatch(setUsageLoading());
 
     try {
       const nextUsage = await getPlanUsageApi(signal);
       if (!isValidUsage(nextUsage)) {
         throw new Error("La API devolvió datos de uso incompletos.");
       }
-      setUsage(nextUsage);
+      dispatch(setUsageData(nextUsage));
       return nextUsage;
     } catch (requestError) {
       if (!signal?.aborted && requestError.name !== "CanceledError") {
-        setError(getErrorMessage(requestError));
+        dispatch(setUsageError(getErrorMessage(requestError)));
       }
       return null;
-    } finally {
-      if (!signal?.aborted) setIsLoading(false);
     }
-  }, []);
+  }, [dispatch]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -51,33 +57,25 @@ export const usePlanUsage = () => {
   }, [refresh]);
 
   const upgrade = useCallback(async () => {
-    setIsUpgrading(true);
-    setError("");
+    dispatch(setPlanUpgrading(true));
+    dispatch(setUsageError(""));
 
     try {
       const result = await upgradePlanApi();
-      if (result?.plan !== "premium") {
-        throw new Error("La API no confirmó la mejora al plan Premium.");
+      if (result?.plan !== "premium" || typeof result.token !== "string" || !result.token) {
+        throw new Error("La API no confirmó el plan Premium y su nuevo token.");
       }
-      setUsage((currentUsage) =>
-        currentUsage
-          ? {
-              ...currentUsage,
-              plan: result.plan,
-              limit: null,
-              percentageUsed: null,
-            }
-          : currentUsage,
-      );
+      window.localStorage.setItem("token", result.token);
+      dispatch(updateAuthToken(result.token));
       await refresh();
       return result.plan;
     } catch (requestError) {
-      setError(getErrorMessage(requestError));
+      dispatch(setUsageError(getErrorMessage(requestError)));
       return null;
     } finally {
-      setIsUpgrading(false);
+      dispatch(setPlanUpgrading(false));
     }
-  }, [refresh]);
+  }, [dispatch, refresh]);
 
   return { usage, isLoading, isUpgrading, error, refresh, upgrade };
 };

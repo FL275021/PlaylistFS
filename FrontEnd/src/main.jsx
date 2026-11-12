@@ -3,8 +3,8 @@ import { Provider } from "react-redux";
 import { ToastContainer } from "react-toastify";
 import { store } from "./redux/store";
 
-import "./index.css";
 import "bootstrap/dist/css/bootstrap.min.css";
+import "./styles/estilos.css";
 
 import Rutas from "./components/Rutas.jsx";
 import SpinnerGlobal from "./components/layout/SpinnerGlobal.jsx";

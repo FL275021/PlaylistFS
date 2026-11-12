@@ -1,4 +1,8 @@
-const PlusUsageReport = ({ usage, isLoading, onRefresh }) => {
+import { useSelector } from "react-redux";
+
+const PlusUsageReport = ({ onRefresh }) => {
+  const usage = useSelector((state) => state.planUsage.data);
+  const isLoading = useSelector((state) => state.planUsage.status === "loading");
   const isPlus = usage?.plan === "plus";
   const remaining = isPlus ? Math.max(usage.limit - usage.used, 0) : null;
 

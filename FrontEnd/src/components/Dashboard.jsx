@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Link, useNavigate } from "react-router-dom";
 import { logout } from "../redux/features/authSlice.js";
@@ -5,6 +6,17 @@ import { usePlanUsage } from "../hooks/usePlanUsage.js";
 import PlanUpgrade from "./PlanUpgrade.jsx";
 import PlusUsageReport from "./PlusUsageReport.jsx";
 import UsageChart from "./UsageChart.jsx";
+import PlaylistLibrary from "./PlaylistLibrary.jsx";
+import {
+  getGenresApi,
+  getPlaylistsApi,
+} from "../services/playlistServices.js";
+import {
+  setPlaylists,
+  setPlaylistsError,
+  setPlaylistsLoading,
+} from "../redux/features/playlistsSlice.js";
+import { setGenres } from "../redux/features/genresSlice.js";
 
 const Dashboard = () => {
   const dispatch = useDispatch();
@@ -13,11 +25,40 @@ const Dashboard = () => {
   const {
     usage,
     isLoading,
-    isUpgrading,
     error,
     refresh,
     upgrade,
   } = usePlanUsage();
+
+  useEffect(() => {
+    const controller = new AbortController();
+    dispatch(setPlaylistsLoading());
+
+    Promise.all([
+      getPlaylistsApi(controller.signal),
+      getGenresApi(controller.signal),
+    ])
+      .then(([playlists, genres]) => {
+        if (!Array.isArray(playlists) || !Array.isArray(genres)) {
+          throw new Error("La API devolvió datos incompletos para el dashboard.");
+        }
+        dispatch(setPlaylists(playlists));
+        dispatch(setGenres(genres));
+      })
+      .catch((requestError) => {
+        if (!controller.signal.aborted) {
+          dispatch(
+            setPlaylistsError(
+              requestError.response?.data?.message ||
+                requestError.message ||
+                "No se pudo cargar tu biblioteca.",
+            ),
+          );
+        }
+      });
+
+    return () => controller.abort();
+  }, [dispatch]);
 
   const handleLogout = () => {
     window.localStorage.removeItem("token");
@@ -89,22 +130,15 @@ const Dashboard = () => {
           </article>
         </div>
 
-        <PlusUsageReport
-          usage={usage}
-          isLoading={isLoading}
-          onRefresh={() => refresh()}
-        />
+        <PlusUsageReport onRefresh={() => refresh()} />
         {error && (
           <p className="form-alert dashboard-alert" role="alert">
             {error}
           </p>
         )}
-        <PlanUpgrade
-          plan={usage?.plan || user?.plan}
-          isUpgrading={isUpgrading}
-          onUpgrade={upgrade}
-        />
-        <UsageChart usage={usage} />
+        <PlanUpgrade onUpgrade={upgrade} />
+        <PlaylistLibrary onChange={refresh} />
+        <UsageChart />
       </section>
     </main>
   );

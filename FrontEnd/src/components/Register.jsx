@@ -54,23 +54,11 @@ const Register = () => {
           <input
             id="username"
             autoComplete="username"
-            placeholder="Entre 3 y 30 letras o números"
+            placeholder="Elegí un nombre de usuario"
             aria-invalid={Boolean(errors.username)}
             {...register("username", {
               required: "Ingresá un nombre de usuario.",
               setValueAs: (value) => value.trim(),
-              minLength: {
-                value: 3,
-                message: "Debe tener al menos 3 caracteres.",
-              },
-              maxLength: {
-                value: 30,
-                message: "No puede superar los 30 caracteres.",
-              },
-              pattern: {
-                value: /^[a-zA-Z0-9]+$/,
-                message: "Usá solamente letras y números.",
-              },
             })}
           />
           {errors.username && (
@@ -110,18 +98,10 @@ const Register = () => {
             id="password"
             type="password"
             autoComplete="new-password"
-            placeholder="Mínimo 8 caracteres"
+            placeholder="Ingresá una contraseña"
             aria-invalid={Boolean(errors.password)}
             {...register("password", {
               required: "Ingresá una contraseña.",
-              minLength: {
-                value: 8,
-                message: "Debe tener al menos 8 caracteres.",
-              },
-              maxLength: {
-                value: 50,
-                message: "No puede superar los 50 caracteres.",
-              },
               deps: ["confirmPassword"],
             })}
           />

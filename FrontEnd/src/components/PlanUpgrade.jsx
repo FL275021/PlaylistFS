@@ -1,4 +1,8 @@
-const PlanUpgrade = ({ plan, isUpgrading, onUpgrade }) => {
+import { useSelector } from "react-redux";
+
+const PlanUpgrade = ({ onUpgrade }) => {
+  const plan = useSelector((state) => state.planUsage.data?.plan);
+  const isUpgrading = useSelector((state) => state.planUsage.isUpgrading);
   const isPremium = plan === "premium";
 
   const confirmUpgrade = () => {

@@ -7,5 +7,5 @@ export const getPlanUsageApi = async (signal) => {
 
 export const upgradePlanApi = async () => {
   const response = await api.patch("/users/me/upgrade-plan");
-  return response.data?.data;
+  return { ...response.data?.data, token: response.data?.token };
 };
