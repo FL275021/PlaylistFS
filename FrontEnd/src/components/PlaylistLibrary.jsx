@@ -41,6 +41,11 @@ export default function PlaylistLibrary({ onChange }) {
   const [trackDrafts, setTrackDrafts] = useState({});
   const [trackQueries, setTrackQueries] = useState({});
   const [trackResults, setTrackResults] = useState({});
+  const [coverErrors, setCoverErrors] = useState({});
+
+  const setCoverError = (id, message) => {
+    setCoverErrors((current) => ({ ...current, [id]: message }));
+  };
 
   const visiblePlaylists = useMemo(() => {
     const query = filter.trim().toLocaleLowerCase();
@@ -136,12 +141,12 @@ export default function PlaylistLibrary({ onChange }) {
     event.preventDefault();
     const form = event.currentTarget;
     const image = form.elements.image.files?.[0];
-    if (!image) return setError("Seleccioná una imagen de portada.");
-    if (!image.type.startsWith("image/")) return setError("El archivo debe ser una imagen.");
-    if (image.size > 5 * 1024 * 1024) return setError("La imagen no puede superar 5 MB.");
     const id = getId(playlist);
+    if (!image) return setCoverError(id, "Seleccioná una imagen de portada.");
+    if (!image.type.startsWith("image/")) return setCoverError(id, "El archivo debe ser una imagen.");
+    if (image.size > 5 * 1024 * 1024) return setCoverError(id, "La imagen no puede superar 5 MB.");
     setBusy(`cover-${id}`);
-    setError("");
+    setCoverError(id, "");
     try {
       const updated = await uploadPlaylistCoverApi(id, image);
       if (!hasPlaylist(updated) || !updated.coverImageUrl) {
@@ -151,7 +156,7 @@ export default function PlaylistLibrary({ onChange }) {
       form.reset();
       setNotice("Portada actualizada.");
     } catch (requestError) {
-      setError(getErrorMessage(requestError));
+      setCoverError(id, getErrorMessage(requestError));
     } finally {
       setBusy("");
     }
@@ -350,6 +355,7 @@ export default function PlaylistLibrary({ onChange }) {
                     <label>Portada <input name="image" type="file" accept="image/*" /></label>
                     <button className="button button-quiet" type="submit" disabled={busy === `cover-${id}`}>Subir</button>
                   </form>
+                  {coverErrors[id] && <p className="form-alert cover-error" role="alert">{coverErrors[id]}</p>}
                   <ul className="track-list">
                     {tracks.map((track) => (
                       <li key={getId(track) || `${track.title}-${track.artist}`}>
