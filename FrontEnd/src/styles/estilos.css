@@ -283,6 +283,48 @@
   background: var(--paper);
 }
 
+.dashboard-nav {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  border-bottom: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.96);
+  backdrop-filter: blur(12px);
+}
+
+.dashboard-nav-inner {
+  width: min(100%, 1080px);
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  margin: 0 auto;
+  padding: 0 16px;
+  scrollbar-width: thin;
+}
+
+.dashboard-nav a {
+  flex: 0 0 auto;
+  border-radius: 6px;
+  padding: 8px 11px;
+  color: #555b53;
+  font-size: 11px;
+  font-weight: 650;
+  text-decoration: none;
+  transition: color 140ms ease, background-color 140ms ease;
+}
+
+.dashboard-nav a:hover {
+  color: var(--ink);
+  background: #f0f3ed;
+}
+
+.dashboard-nav a:focus-visible {
+  outline: 2px solid var(--blue);
+  outline-offset: 2px;
+}
+
 .dashboard-brand {
   color: var(--ink);
   font-size: 15px;
@@ -319,6 +361,18 @@
   width: min(100% - 48px, 1080px);
   margin: 0 auto;
   padding: 54px 0 72px;
+}
+
+.dashboard-anchor {
+  scroll-margin-top: 64px;
+}
+
+.dashboard-plan-section > .upgrade-panel {
+  margin-top: 16px;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 .dashboard-intro {
@@ -560,6 +614,7 @@
 .track-list li {
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   justify-content: space-between;
   gap: 8px;
   border-bottom: 1px solid #edf0ea;
@@ -592,7 +647,20 @@
 
 .track-list li span {
   display: grid;
+  flex: 1 1 150px;
   min-width: 0;
+}
+
+.track-info audio,
+.discover-track-info audio {
+  width: min(100%, 240px);
+  height: 34px;
+  margin-top: 5px;
+}
+
+.preview-unavailable {
+  color: var(--muted);
+  font-size: 10px;
 }
 
 .track-list strong {
@@ -1010,6 +1078,16 @@
     padding-top: 38px;
   }
 
+  .dashboard-nav-inner {
+    min-height: 46px;
+    gap: 2px;
+    padding: 0 10px;
+  }
+
+  .dashboard-nav a {
+    padding: 8px;
+  }
+
   .dashboard-stats {
     grid-template-columns: 1fr;
     gap: 10px;
@@ -1064,5 +1142,11 @@
 
   .chart-bars {
     align-self: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 }

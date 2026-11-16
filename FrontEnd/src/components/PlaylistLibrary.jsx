@@ -359,7 +359,20 @@ export default function PlaylistLibrary({ onChange }) {
                   <ul className="track-list">
                     {tracks.map((track) => (
                       <li key={getId(track) || `${track.title}-${track.artist}`}>
-                        <span><strong>{track.title}</strong><small>{track.artist}{track.album ? ` · ${track.album}` : ""}</small></span>
+                        <span className="track-info">
+                          <strong>{track.title}</strong>
+                          <small>{track.artist}{track.album ? ` · ${track.album}` : ""}</small>
+                          {track.previewUrl ? (
+                            <audio
+                              controls
+                              preload="none"
+                              src={track.previewUrl}
+                              aria-label={`Escuchar muestra de ${track.title} de ${track.artist}`}
+                            />
+                          ) : (
+                            <small className="preview-unavailable">Muestra no disponible</small>
+                          )}
+                        </span>
                         <button className="icon-button" type="button" aria-label={`Quitar ${track.title}`} title="Quitar pista" onClick={() => deleteTrack(playlist, track)}>×</button>
                       </li>
                     ))}

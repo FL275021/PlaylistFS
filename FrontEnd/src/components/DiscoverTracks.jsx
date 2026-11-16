@@ -128,6 +128,16 @@ export default function DiscoverTracks() {
               <div className="discover-track-info">
                 <strong>{track.title}</strong>
                 <span>{track.artist}{track.album ? ` · ${track.album}` : ""}</span>
+                {track.previewUrl ? (
+                  <audio
+                    controls
+                    preload="none"
+                    src={track.previewUrl}
+                    aria-label={`Escuchar muestra de ${track.title} de ${track.artist}`}
+                  />
+                ) : (
+                  <small className="preview-unavailable">Muestra no disponible</small>
+                )}
               </div>
               <button
                 className="button button-quiet"

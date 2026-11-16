@@ -88,8 +88,18 @@ const Dashboard = () => {
         </div>
       </header>
 
+      <nav className="dashboard-nav" aria-label="Secciones del dashboard">
+        <div className="dashboard-nav-inner">
+          <a href="#dashboard-overview">Resumen</a>
+          <a href="#dashboard-plan">Mi plan</a>
+          <a href="#dashboard-playlists">Playlists</a>
+          <a href="#dashboard-discover">Descubrir</a>
+          <a href="#dashboard-activity">Actividad</a>
+        </div>
+      </nav>
+
       <section className="dashboard-content">
-        <div className="dashboard-intro">
+        <div className="dashboard-intro dashboard-anchor" id="dashboard-overview">
           <p className="eyebrow">TU ESPACIO MUSICAL</p>
           <h1>Hola{user?.username ? `, ${user.username}` : ""}.</h1>
           <p>Consultá el uso de tu plan y administrá tu cuenta.</p>
@@ -131,16 +141,24 @@ const Dashboard = () => {
           </article>
         </div>
 
-        <PlusUsageReport onRefresh={() => refresh()} />
-        {error && (
-          <p className="form-alert dashboard-alert" role="alert">
-            {error}
-          </p>
-        )}
-        <PlanUpgrade onUpgrade={upgrade} />
-        <PlaylistLibrary onChange={refresh} />
-        <DiscoverTracks />
-        <UsageChart />
+        <div className="dashboard-anchor dashboard-plan-section" id="dashboard-plan">
+          <PlusUsageReport onRefresh={() => refresh()} />
+          {error && (
+            <p className="form-alert dashboard-alert" role="alert">
+              {error}
+            </p>
+          )}
+          <PlanUpgrade onUpgrade={upgrade} />
+        </div>
+        <div className="dashboard-anchor" id="dashboard-playlists">
+          <PlaylistLibrary onChange={refresh} />
+        </div>
+        <div className="dashboard-anchor" id="dashboard-discover">
+          <DiscoverTracks />
+        </div>
+        <div className="dashboard-anchor" id="dashboard-activity">
+          <UsageChart />
+        </div>
       </section>
     </main>
   );
